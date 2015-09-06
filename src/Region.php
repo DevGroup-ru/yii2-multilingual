@@ -2,10 +2,7 @@
 
 namespace DevGroup\Multilingual;
 
-use Yii;
-use yii\base\Object;
-
-class Region extends Object
+class Region
 {
     public $iso = null;
     public $name = null;

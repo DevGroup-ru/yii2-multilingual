@@ -30,6 +30,10 @@ class GeoInfo
         }
         foreach ($config[$configAttribute] as $key => $value) {
             if (property_exists($object, $key)) {
+                // we are storing all iso codes in lower case
+                if (strpos($key, 'iso') === 0) {
+                    $value = strtolower($value);
+                }
                 $object->$key = $value;
             }
         }

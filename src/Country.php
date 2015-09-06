@@ -2,12 +2,10 @@
 
 namespace DevGroup\Multilingual;
 
-use Yii;
-use yii\base\Object;
-
-class Country extends Object
+class Country
 {
-    public $iso = null;
+    public $iso_3166_1_alpha_2 = null;
+    public $iso_3166_1_alpha_3 = null;
     public $name = null;
     public $lat = null;
     public $lon = null;

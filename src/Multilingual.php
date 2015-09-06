@@ -6,6 +6,7 @@ use Yii;
 use yii\base\Application;
 use yii\base\BootstrapInterface;
 use yii\base\Component;
+use yii\base\InvalidConfigException;
 
 class Multilingual extends Component implements BootstrapInterface
 {
@@ -22,6 +23,8 @@ class Multilingual extends Component implements BootstrapInterface
      * @var int Cache lifetime in seconds. Defaults to 2 weeks(1209600).
      */
     public $cacheLifetime = 1209600;
+
+    public $filedb = 'filedb';
 
     public $handlers = [
         [
@@ -89,7 +92,7 @@ class Multilingual extends Component implements BootstrapInterface
             $profile_name = 'Handler: ' . get_class($object);
             Yii::beginProfile($profile_name);
             $info = $object->getGeoInfo($ip);
-            if ($info instanceof GeoInfo) {
+            if ($info instanceof GeoInfo && ($info->country->iso_3166_1_alpha_2 || $info->country->iso_3166_1_alpha_3 || $info->country->name)) {
                 $info->ip = $ip;
                 $this->geo = $info;
 
@@ -120,5 +123,14 @@ class Multilingual extends Component implements BootstrapInterface
             $this->retrieveInfo();
         }
         return $this->geo;
+    }
+
+    public function filedb()
+    {
+        $filedb = Yii::$app->get($this->filedb);
+        if ($filedb === null) {
+            throw new InvalidConfigException("You must configure filedb component");
+        }
+        return $filedb;
     }
 }

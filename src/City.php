@@ -2,10 +2,7 @@
 
 namespace DevGroup\Multilingual;
 
-use Yii;
-use yii\base\Object;
-
-class City extends Object
+class City
 {
     public $iso = null;
     public $name = null;
