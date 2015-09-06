@@ -12,6 +12,9 @@ class Multilingual extends Component implements BootstrapInterface
     public $useXForwardedFor = false;
     public $useClientIp = false;
 
+    public $mockIp = false;
+    public $lazy = false;
+
     protected $geo = null;
 
     public $handlers = [
@@ -31,11 +34,18 @@ class Multilingual extends Component implements BootstrapInterface
      */
     public function bootstrap($app)
     {
-
+        if ($this->lazy === false) {
+            $app->on(Application::EVENT_BEFORE_REQUEST, function () {
+                $this->retrieveInfo();
+            });
+        }
     }
 
     private function getIp()
     {
+        if ($this->mockIp !== null) {
+            return $this->mockIp;
+        }
         $validator = new \DevGroup\Multilingual\validators\IpValidator;
         $validator->ipv4 = true;
         if ($this->useClientIp === true && isset($_SERVER['HTTP_CLIENT_IP'])) {
@@ -58,7 +68,7 @@ class Multilingual extends Component implements BootstrapInterface
             /** @var GeoProviderInterface $object */
             $object = Yii::createObject($handler);
             $info = $object->getGeoInfo($ip);
-            if ($info !== null) {
+            if ($info instanceof GeoProviderInterface) {
                 $info->ip = $ip;
                 $this->geo = $info;
                 return;
