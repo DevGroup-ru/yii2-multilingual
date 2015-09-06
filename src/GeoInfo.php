@@ -18,9 +18,21 @@ class GeoInfo
 
     public function __construct($config=[])
     {
-        $this->country = Yii::configure(new Country(), isset($config['country']) ? $config['country'] : []);
-        $this->city    = Yii::configure(new City(),    isset($config['city'])    ? $config['city']    : []);
-        $this->region  = Yii::configure(new Region(),  isset($config['region'])  ? $config['region']  : []);
+        $this->country = $this->configure(new Country(), $config, 'country' );
+        $this->city    = $this->configure(new City(),    $config, 'city'    );
+        $this->region  = $this->configure(new Region(),  $config, 'region'  );
+    }
 
+    private function configure($object, $config, $configAttribute)
+    {
+        if (isset($config[$configAttribute]) === false) {
+            return $object;
+        }
+        foreach ($config[$configAttribute] as $key => $value) {
+            if (property_exists($object, $key)) {
+                $object->$key = $value;
+            }
+        }
+        return $object;
     }
 }

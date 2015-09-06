@@ -17,6 +17,12 @@ class Multilingual extends Component implements BootstrapInterface
 
     protected $geo = null;
 
+    public $cache = 'cache';
+    /**
+     * @var int Cache lifetime in seconds. Defaults to 2 weeks(1209600).
+     */
+    public $cacheLifetime = 1209600;
+
     public $handlers = [
         [
             'class' => 'DevGroup\Multilingual\DefaultGeoProvider',
@@ -43,7 +49,7 @@ class Multilingual extends Component implements BootstrapInterface
 
     private function getIp()
     {
-        if ($this->mockIp !== null) {
+        if ($this->mockIp !== false) {
             return $this->mockIp;
         }
         $validator = new \DevGroup\Multilingual\validators\IpValidator;
@@ -64,16 +70,48 @@ class Multilingual extends Component implements BootstrapInterface
     protected function retrieveInfo()
     {
         $ip = $this->getIp();
-        foreach ($this->handlers as $handler) {
-            /** @var GeoProviderInterface $object */
-            $object = Yii::createObject($handler);
-            $info = $object->getGeoInfo($ip);
-            if ($info instanceof GeoProviderInterface) {
-                $info->ip = $ip;
-                $this->geo = $info;
+
+        Yii::beginProfile('Retrieving of geo ip info');
+
+        if ($this->cache !== false) {
+            $this->geo = $this->cache()->get("GeoIP:$ip");
+            if ($this->geo === false) {
+                $this->geo = null;
+            } else {
+                Yii::endProfile('Retrieving of geo ip info');
                 return;
             }
         }
+
+        foreach ($this->handlers as $handler) {
+            /** @var GeoProviderInterface $object */
+            $object = Yii::createObject($handler);
+            $profile_name = 'Handler: ' . get_class($object);
+            Yii::beginProfile($profile_name);
+            $info = $object->getGeoInfo($ip);
+            if ($info instanceof GeoInfo) {
+                $info->ip = $ip;
+                $this->geo = $info;
+
+                if ($this->cache !== false) {
+                    $this->cache()->set("GeoIP:$ip", $this->geo, $this->cacheLifetime);
+                }
+
+                Yii::endProfile($profile_name);
+                Yii::endProfile('Retrieving of geo ip info');
+                return;
+            }
+            Yii::endProfile($profile_name);
+        }
+        Yii::endProfile('Retrieving of geo ip info');
+    }
+
+    /**
+     * @return \yii\caching\Cache
+     */
+    public function cache()
+    {
+        return Yii::$app->get($this->cache);
     }
 
     public function geo()
