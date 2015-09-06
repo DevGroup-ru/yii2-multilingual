@@ -1,0 +1,32 @@
+{
+    "name": "devgroup/yii2-multilingual",
+    "description": "Allows building yii2 apps for multiple languages using regional URL's and domains",
+    "type": "yii2-extension",
+    "keywords": ["yii2","extension","i18n","l10n","language","multilingual","hreflang"],
+    "license": "MIT",
+    "minimum-stability": "dev",
+    "authors": [
+        {
+            "name": "Alexander Kozhevnikov",
+            "email": "b37hr3z3n@gmail.com"
+        }
+    ],
+    "require": {
+        "yiisoft/yii2": "^2.0.6",
+        "yii2tech/filedb": "^1.0@dev"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "~4.0",
+        "phpunit/dbunit": "~1.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "DevGroup\\Multilingual\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "DevGroup\\Multilingual\\Tests\\": "tests/"
+        }
+    }
+}
