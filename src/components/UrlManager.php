@@ -62,17 +62,18 @@ class UrlManager extends BaseUrlManager
     {
 
         $requested_language_id = isset($params[$this->languageParam]) ? $params[$this->languageParam] : null;
-        if ($requested_language_id === null && $this->force_host_in_url === false) {
-            return parent::createUrl($params);
+        if ($requested_language_id === null) {
+            $requested_language_id = Yii::$app->multilingual->language_id_url;
+        } else {
+            unset($params[$this->languageParam]);
         }
-        unset($params[$this->languageParam]);
 
         /** @var Language $requested_language */
         $requested_language = Language::findOne(['id' => $requested_language_id]);
         if ($requested_language === null) {
             throw new \yii\web\ServerErrorHttpException('Requested language not found');
         }
-        $current_language_id = Yii::$app->multilingual->language_id;
+        $current_language_id = Yii::$app->multilingual->language_id_url;
 
         $url = parent::createUrl($params);
         if (!empty($requested_language->folder)) {
@@ -114,6 +115,7 @@ class UrlManager extends BaseUrlManager
             if ($matchedDomain && $matchedFolder) {
                 $languageMatched = $language;
                 Yii::$app->multilingual->language_id_url = $language->id;
+                Yii::$app->language = $language->yii_language;
                 break;
             }
         }
