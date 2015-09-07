@@ -128,7 +128,14 @@ class UrlManager extends BaseUrlManager
             Yii::$app->response->redirect($url, 302, false);
             Yii::$app->end();
         }
-        if ($languageMatched !== false && !empty($languageMatched->folder)) {
+
+
+
+        if (!empty($languageMatched->folder)) {
+            if ($languageMatched->folder === $request->pathInfo) {
+                Yii::$app->response->redirect($request->pathInfo.'/', 301, false);
+                Yii::$app->end();
+            }
             // matched language urls are made with subfolders
             // cut them down(path was already shifted)
             $request->setPathInfo(implode('/', $path));
