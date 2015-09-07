@@ -2,6 +2,7 @@
 
 namespace DevGroup\Multilingual;
 
+use DevGroup\Multilingual\models\CountryLanguage;
 use Yii;
 use yii\base\Application;
 use yii\base\BootstrapInterface;
@@ -14,9 +15,18 @@ class Multilingual extends Component implements BootstrapInterface
     public $useClientIp = false;
 
     public $mockIp = false;
-    public $lazy = false;
 
+    /** @var GeoInfo */
     protected $geo = null;
+
+    /** @var null|integer */
+    public $language_id = null;
+
+    public $language_id_url = null;
+
+    public $geo_default_language_forced = false;
+
+    public $default_language_id = null;
 
     public $cache = 'cache';
     /**
@@ -43,11 +53,12 @@ class Multilingual extends Component implements BootstrapInterface
      */
     public function bootstrap($app)
     {
-        if ($this->lazy === false) {
-            $app->on(Application::EVENT_BEFORE_REQUEST, function () {
-                $this->retrieveInfo();
-            });
-        }
+
+        $app->on(Application::EVENT_BEFORE_REQUEST, function () {
+            $this->retrieveInfo();
+            $this->retrieveLanguageFromGeo();
+        });
+
     }
 
     private function getIp()
@@ -107,6 +118,34 @@ class Multilingual extends Component implements BootstrapInterface
             Yii::endProfile($profile_name);
         }
         Yii::endProfile('Retrieving of geo ip info');
+
+    }
+
+    private function retrieveLanguageFromGeo()
+    {
+        // ok we have at least geo object, try to find language for it
+        $model = null;
+        if ($this->geo instanceof GeoInfo) {
+            $country = $this->geo->country;
+            $searchOrder = [
+                'iso_3166_1_alpha_2',
+                'iso_3166_1_alpha_3',
+                'name',
+            ];
+            foreach ($searchOrder as $attribute) {
+                if (isset($country->$attribute)) {
+                    $model = CountryLanguage::find()
+                        ->where([$attribute => $country->$attribute])
+                        ->one();
+                    if ($model !== null) {
+                        $this->language_id = $model->language_id;
+                        return;
+                    }
+                }
+            }
+        }
+        $this->geo_default_language_forced = true;
+        $this->language_id = $this->default_language_id;
     }
 
     /**
@@ -119,18 +158,7 @@ class Multilingual extends Component implements BootstrapInterface
 
     public function geo()
     {
-        if ($this->geo === null) {
-            $this->retrieveInfo();
-        }
         return $this->geo;
     }
 
-    public function filedb()
-    {
-        $filedb = Yii::$app->get($this->filedb);
-        if ($filedb === null) {
-            throw new InvalidConfigException("You must configure filedb component");
-        }
-        return $filedb;
-    }
 }
