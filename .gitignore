@@ -4,3 +4,4 @@ vendor
 coverage
 tests/runtime
 coverage.xml
+.vagrant

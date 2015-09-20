@@ -28,3 +28,11 @@ Usage
 -----
 
 TBD
+
+
+Credits and inspiration sources
+-------------------------------
+
+- Michael Härtl - author of codemix/yii2-localeurls
+- Company BINOVATOR - authors of SypexGeo database and php class
+- Alexander Kochetov (@creocoder) - yii2-translatable package

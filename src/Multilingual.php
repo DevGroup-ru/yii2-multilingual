@@ -20,9 +20,9 @@ class Multilingual extends Component implements BootstrapInterface
     protected $geo = null;
 
     /** @var null|integer */
-    public $language_id = null;
+    public $language_id_geo = null;
 
-    public $language_id_url = null;
+    public $language_id = null;
 
     public $geo_default_language_forced = false;
 
@@ -81,7 +81,7 @@ class Multilingual extends Component implements BootstrapInterface
         return Yii::$app->request->userIP;
     }
 
-    protected function retrieveInfo()
+    public function retrieveInfo()
     {
         $ip = $this->getIp();
 
@@ -121,7 +121,7 @@ class Multilingual extends Component implements BootstrapInterface
 
     }
 
-    private function retrieveLanguageFromGeo()
+    public function retrieveLanguageFromGeo()
     {
         // ok we have at least geo object, try to find language for it
         $model = null;
@@ -138,14 +138,14 @@ class Multilingual extends Component implements BootstrapInterface
                         ->where([$attribute => $country->$attribute])
                         ->one();
                     if ($model !== null) {
-                        $this->language_id = $model->language_id;
+                        $this->language_id_geo = $model->language_id;
                         return;
                     }
                 }
             }
         }
         $this->geo_default_language_forced = true;
-        $this->language_id = $this->default_language_id;
+        $this->language_id_geo = $this->default_language_id;
     }
 
     /**
@@ -156,6 +156,7 @@ class Multilingual extends Component implements BootstrapInterface
         return Yii::$app->get($this->cache);
     }
 
+    /** @var GeoInfo */
     public function geo()
     {
         return $this->geo;
