@@ -226,6 +226,14 @@ class DatabaseTest extends \PHPUnit_Extensions_Database_TestCase
             $this->assertTrue(false, 'Unknown exception');
         }
         $this->assertEmpty($badLangTest, 'Url should be empty, because of unexisting language');
+
+        $urlManager = Yii::$app->urlManager;
+        $this->assertEquals('/site/login', $urlManager->createUrl(['site/login']));
+        $this->assertEquals('/en/site/test', $urlManager->createUrl(['site/test']));
+        $urlManager->includeRoutes = ['site/included', 'site/another'];
+        $this->assertEquals('/site/test', $urlManager->createUrl(['site/test']));
+        $this->assertEquals('/en/site/included', $urlManager->createUrl(['site/included']));
+        $urlManager->includeRoutes = [];
     }
 
     /**
