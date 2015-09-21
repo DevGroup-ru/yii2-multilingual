@@ -16,6 +16,7 @@ use \yii2tech\filedb\ActiveRecord;
  * @property string $folder
  * @property string $yii_language
  * @property string $hreflang
+ * @property string $db_table_postfix
  */
 class Language extends ActiveRecord
 {

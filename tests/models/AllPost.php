@@ -6,10 +6,10 @@ use DevGroup\Multilingual\behaviors\MultilingualActiveRecord;
 use DevGroup\Multilingual\traits\MultilingualTrait;
 
 /**
- * Class Post
+ * Class AllPost
  * @property integer $author_id
  */
-class Post extends \yii\db\ActiveRecord
+class AllPost extends \yii\db\ActiveRecord
 {
     use MultilingualTrait;
 
@@ -18,6 +18,8 @@ class Post extends \yii\db\ActiveRecord
         return [
             'multilingual' => [
                 'class' => MultilingualActiveRecord::className(),
+                'translationModelClass' => PostTranslation::className(),
+                'translationPublishedAttribute' => false,
             ],
         ];
     }
@@ -28,7 +30,5 @@ class Post extends \yii\db\ActiveRecord
         return '{{%post}}';
     }
 
-    public static function applyDefaultScope($query) {
-        return $query->where(['post_translation.is_published'=>1]);
-    }
+
 }
