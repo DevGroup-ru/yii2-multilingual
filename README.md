@@ -3,7 +3,7 @@ Yii2 multilingual component
 Allows building yii2 apps for multiple languages using regional URL's and domains
 
 [![Build Status](https://travis-ci.org/DevGroup-ru/yii2-multilingual.svg?branch=master)](https://travis-ci.org/DevGroup-ru/yii2-multilingual)
-
+[![codecov.io](http://codecov.io/github/DevGroup-ru/yii2-multilingual/coverage.svg?branch=master)](http://codecov.io/github/DevGroup-ru/yii2-multilingual?branch=master)
 
 **WARNING:** This extension is under active development. Don't use it in production!
 
