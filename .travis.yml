@@ -21,7 +21,7 @@ before_script:
   - mysql yii2_multilingual < tests/migrations/mysql.sql
 
 script:
-  - vendor/bin/phpunit --coverage-clover=coverage.clover --verbose $PHPUNIT_FLAGS
+  - vendor/bin/phpunit --coverage-clover=coverage.xml --verbose $PHPUNIT_FLAGS
 
 after_script:
   - |
@@ -34,3 +34,6 @@ after_script:
 cache:
   - vendor
   - $HOME/.composer/cache
+
+after_success:
+    - bash <(curl -s https://codecov.io/bash)
