@@ -26,7 +26,7 @@ script:
 after_script:
   - |
     if [ $TRAVIS_PHP_VERSION = '5.6' ]; then
-      cd ../../.. 
+      pwd
       travis_retry wget https://scrutinizer-ci.com/ocular.phar
       php ocular.phar code-coverage:upload --format=php-clover coverage.xml
     fi
@@ -36,4 +36,7 @@ cache:
   - $HOME/.composer/cache
 
 after_success:
-    - bash <(curl -s https://codecov.io/bash)
+  - |
+    if [ $TRAVIS_PHP_VERSION = '5.6' ]; then
+      bash <(curl -s https://codecov.io/bash)
+    fi

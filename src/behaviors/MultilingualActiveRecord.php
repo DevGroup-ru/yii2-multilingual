@@ -182,7 +182,9 @@ class MultilingualActiveRecord extends Behavior
         if ($this->translationPublishedAttribute === false) {
             return true;
         }
-        return $translationRecord->getAttribute($this->translationPublishedAttribute) == $this->translationPublishedAttributeValue;
+        return
+            $translationRecord->getAttribute($this->translationPublishedAttribute)
+            == $this->translationPublishedAttributeValue;
     }
 
     /**

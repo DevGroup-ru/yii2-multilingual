@@ -25,7 +25,7 @@ class GeoInfo
      * Creates corresponding country/city/region class instance based on input array values
      * @param $object
      * @param $config
-     * @param $configAttribute
+     * @param string $configAttribute
      * @return Country|City|Region
      */
     private function configure($object, $config, $configAttribute)

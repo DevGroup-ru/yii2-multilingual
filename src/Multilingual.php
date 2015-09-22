@@ -10,31 +10,43 @@ use yii\base\Component;
 
 class Multilingual extends Component implements BootstrapInterface
 {
+    /** @var bool Use X-Forwarded-For for ip detection */
     public $useXForwardedFor = false;
+    /** @var bool Use CLIENT_IP header for ip detection */
     public $useClientIp = false;
 
+    /**
+     * @var bool|string String if we need to set mock ip, false to use real
+     */
     public $mockIp = false;
 
     /** @var GeoInfo */
     protected $geo = null;
 
-    /** @var null|integer */
+    /** @var null|integer User language ID determined by ip-geo information */
     public $language_id_geo = null;
 
+    /** @var null|int User language ID determined by URL */
     public $language_id = null;
 
+    /** @var bool The case when geo information is ok, but no match for country->app-language */
     public $geo_default_language_forced = false;
 
+    /** @var null|int ID of default site language */
     public $default_language_id = null;
 
+    /** @var string Application cache component name */
     public $cache = 'cache';
     /**
      * @var int Cache lifetime in seconds. Defaults to 2 weeks(1209600).
      */
     public $cacheLifetime = 1209600;
 
-    public $filedb = 'filedb';
-
+    /**
+     * Chain of Geo handlers.
+     *
+     * @var array
+     */
     public $handlers = [
         [
             'class' => 'DevGroup\Multilingual\DefaultGeoProvider',
