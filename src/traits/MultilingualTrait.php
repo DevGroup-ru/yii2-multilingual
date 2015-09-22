@@ -2,10 +2,10 @@
 
 namespace DevGroup\Multilingual\traits;
 
-use Yii;
-use yii\db\ActiveRecord;
-use yii\db\ActiveQuery;
 use DevGroup\Multilingual\behaviors\MultilingualActiveRecord;
+use Yii;
+use yii\db\ActiveQuery;
+use yii\db\ActiveRecord;
 
 trait MultilingualTrait
 {
@@ -47,6 +47,9 @@ trait MultilingualTrait
         return $query;
     }
 
+    /**
+     * @return ActiveQuery
+     */
     public function getDefaultTranslation()
     {
         /** @var \yii\db\ActiveRecord|\DevGroup\Multilingual\behaviors\MultilingualActiveRecord $this */
@@ -54,6 +57,9 @@ trait MultilingualTrait
             ->where(['language_id' => Yii::$app->multilingual->language_id]);
     }
 
+    /**
+     * @return ActiveQuery
+     */
     public function getTranslations()
     {
         /** @var \yii\db\ActiveRecord|\DevGroup\Multilingual\behaviors\MultilingualActiveRecord $this */

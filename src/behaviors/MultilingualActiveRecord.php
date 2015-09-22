@@ -37,7 +37,15 @@ class MultilingualActiveRecord extends Behavior
         $className = $this->getTranslationModelClassName();
         /** @var ActiveRecord $exampleModel */
         $exampleModel = new $className;
-        $this->translationAttributes = array_keys($exampleModel->getAttributes(null, ['language_id', 'model_id']));
+        $this->translationAttributes = array_keys(
+            $exampleModel->getAttributes(
+                null,
+                [
+                    'language_id',
+                    'model_id'
+                ]
+            )
+        );
     }
 
     /**
@@ -210,7 +218,7 @@ class MultilingualActiveRecord extends Behavior
     }
 
     /**
-     * @return true
+     * @return boolean
      */
     public function beforeDelete()
     {

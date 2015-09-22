@@ -2,8 +2,6 @@
 
 namespace DevGroup\Multilingual;
 
-use Yii;
-
 class GeoInfo
 {
     /** @var null|Country */
@@ -23,6 +21,13 @@ class GeoInfo
         $this->region  = $this->configure(new Region(),  $config, 'region'  );
     }
 
+    /**
+     * Creates corresponding country/city/region class instance based on input array values
+     * @param $object
+     * @param $config
+     * @param $configAttribute
+     * @return Country|City|Region
+     */
     private function configure($object, $config, $configAttribute)
     {
         if (isset($config[$configAttribute]) === false) {

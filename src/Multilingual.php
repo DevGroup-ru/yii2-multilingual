@@ -7,7 +7,6 @@ use Yii;
 use yii\base\Application;
 use yii\base\BootstrapInterface;
 use yii\base\Component;
-use yii\base\InvalidConfigException;
 
 class Multilingual extends Component implements BootstrapInterface
 {
@@ -61,6 +60,9 @@ class Multilingual extends Component implements BootstrapInterface
 
     }
 
+    /**
+     * @return string IP where user is located
+     */
     private function getIp()
     {
         if ($this->mockIp !== false) {
@@ -81,6 +83,10 @@ class Multilingual extends Component implements BootstrapInterface
         return Yii::$app->request->userIP;
     }
 
+    /**
+     * Runs Geo retrievers chain for getting GEO information by ip
+     * Fills $this->geo
+     */
     public function retrieveInfo()
     {
         $ip = $this->getIp();
@@ -103,7 +109,14 @@ class Multilingual extends Component implements BootstrapInterface
             $profile_name = 'Handler: ' . get_class($object);
             Yii::beginProfile($profile_name);
             $info = $object->getGeoInfo($ip);
-            if ($info instanceof GeoInfo && ($info->country->iso_3166_1_alpha_2 || $info->country->iso_3166_1_alpha_3 || $info->country->name)) {
+            if (
+                $info instanceof GeoInfo &&
+                (
+                    $info->country->iso_3166_1_alpha_2 ||
+                    $info->country->iso_3166_1_alpha_3 ||
+                    $info->country->name
+                )
+            ) {
                 $info->ip = $ip;
                 $this->geo = $info;
 
@@ -121,10 +134,12 @@ class Multilingual extends Component implements BootstrapInterface
 
     }
 
+    /**
+     * Retrieves user language based on his geo params(ip)
+     */
     public function retrieveLanguageFromGeo()
     {
         // ok we have at least geo object, try to find language for it
-        $model = null;
         if ($this->geo instanceof GeoInfo) {
             $country = $this->geo->country;
             $searchOrder = [

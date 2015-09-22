@@ -8,6 +8,7 @@ use \yii2tech\filedb\ActiveRecord;
 /**
  * Class Language
  *
+ * @property integer $id
  * @property string $name
  * @property string $name_native
  * @property string $iso_639_1 ISO 639-1

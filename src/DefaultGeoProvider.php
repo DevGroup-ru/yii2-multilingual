@@ -2,7 +2,6 @@
 
 namespace DevGroup\Multilingual;
 
-use Yii;
 use yii\base\Object;
 
 class DefaultGeoProvider extends Object implements GeoProviderInterface

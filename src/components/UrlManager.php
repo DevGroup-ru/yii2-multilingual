@@ -66,6 +66,12 @@ class UrlManager extends BaseUrlManager
 
     }
 
+    /**
+     * Creates URL with language identifiers(domain and/or folder)
+     * @param $params
+     * @return string
+     * @throws ServerErrorHttpException
+     */
     private function createLanguageUrl($params)
     {
         /** @var \DevGroup\Multilingual\Multilingual $multilingual */
@@ -98,6 +104,9 @@ class UrlManager extends BaseUrlManager
         return $scheme . '://' . $requested_language->domain . $port . '/' . ltrim($url, '/');
     }
 
+    /**
+     * @return string Requested domain
+     */
     private function requestedDomain()
     {
         return isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : Yii::$app->request->serverName;
