@@ -78,6 +78,16 @@ class MultilingualActiveRecord extends Behavior
      * @param int|null $language_id
      * @return ActiveRecord
      */
+    public function translate($language_id = null)
+    {
+        return $this->getTranslation($language_id);
+    }
+
+    /**
+     * Returns the translation model for the specified language.
+     * @param int|null $language_id
+     * @return ActiveRecord
+     */
     public function getTranslation($language_id = null)
     {
         /** @var ActiveRecord $translation */
