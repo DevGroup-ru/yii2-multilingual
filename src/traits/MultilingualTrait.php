@@ -65,4 +65,14 @@ trait MultilingualTrait
         /** @var \yii\db\ActiveRecord|\DevGroup\Multilingual\behaviors\MultilingualActiveRecord $this */
         return $this->hasMany($this->getTranslationModelClassName(), ['model_id' => 'id']);
     }
+
+    /**
+     * Returns the translation model for the specified language.
+     * @param int|null $language_id
+     * @return ActiveRecord
+     */
+    public function translate($language_id = null)
+    {
+        return $this->getTranslation($language_id);
+    }
 }
