@@ -32,7 +32,11 @@ class Multilingual extends Component implements BootstrapInterface
     /** @var bool The case when geo information is ok, but no match for country->app-language */
     public $geo_default_language_forced = false;
 
-    /** @var null|int ID of default site language */
+    /**
+     * ID of default site language.
+     * WARNING! You can probably have big problems(in Console application for example) if you don't set this property!
+     * @var null|int
+     */
     public $default_language_id = null;
 
     /** @var string Application cache component name */
@@ -58,6 +62,12 @@ class Multilingual extends Component implements BootstrapInterface
             ],
         ]
     ];
+    public function init()
+    {
+        parent::init();
+        $this->language_id = $this->default_language_id;
+    }
+
     /**
      * Bootstrap method to be called during application bootstrap stage.
      * @param Application $app the application currently running
