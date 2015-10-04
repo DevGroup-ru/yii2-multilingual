@@ -141,7 +141,15 @@ class UrlManager extends BaseUrlManager
             }
         }
         if ($languageMatched === false) {
-            // no matched language - should redirect to user's regional domain with 302
+            // no matched language - try parseRequest and check if this route is in excluded
+            $resolved = parent::parseRequest($request);
+            if (is_array($resolved)) {
+                $route = reset($resolved);
+                if (in_array($route, $this->excludeRoutes)) {
+                    return $resolved;
+                }
+            }
+            // no matched language and not in excluded routes - should redirect to user's regional domain with 302
 
             $this->force_host_in_url = true;
             $url = $this->createUrl([$request->pathInfo, 'language_id' => $multilingual->language_id_geo]);
