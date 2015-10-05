@@ -151,6 +151,7 @@ class UrlManager extends BaseUrlManager
                     }
                 }
             }
+
             // no matched language and not in excluded routes - should redirect to user's regional domain with 302
 
             $this->force_host_in_url = true;

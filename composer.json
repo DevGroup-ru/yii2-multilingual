@@ -14,7 +14,8 @@
     "require": {
         "yiisoft/yii2": "^2.0.6",
         "yii2tech/filedb": "^1.0@dev",
-        "devgroup/yii2-tag-dependency-helper": "^1.2.0"
+        "devgroup/yii2-tag-dependency-helper": "^1.2.0",
+        "kartik-v/yii2-icons": "~1.4.0"
     },
     "require-dev": {
         "phpunit/phpunit": "~4.0",
