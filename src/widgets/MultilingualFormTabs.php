@@ -31,8 +31,9 @@ class MultilingualFormTabs extends Widget
 
         $languages = Language::find()->all();
         foreach ($languages as $index => $language) {
+            $flag = $language->iso_639_1 === 'en' ? 'gb' : $language->iso_639_1;
             $items[] = [
-                'label' => '<span class="flag-icon flag-icon-'.$language->iso_639_1.'"></span> '.$language->name,
+                'label' => '<span class="flag-icon flag-icon-'.$flag.'"></span> '.$language->name,
                 'active' => $index === 0,
                 'content' => $this->renderFile(
                     $this->childView,
