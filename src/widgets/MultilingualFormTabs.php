@@ -42,6 +42,7 @@ class MultilingualFormTabs extends Widget
                         'form' => $this->form,
                         'language' => $language,
                         'language_id' => $language->id,
+                        'attributePrefix' => "[{$language->id}]",
                     ]
                 )
             ];
