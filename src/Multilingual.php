@@ -7,6 +7,8 @@ use Yii;
 use yii\base\Application;
 use yii\base\BootstrapInterface;
 use yii\base\Component;
+use yii\helpers\ArrayHelper;
+use yii\helpers\Url;
 
 class Multilingual extends Component implements BootstrapInterface
 {
@@ -131,8 +133,7 @@ class Multilingual extends Component implements BootstrapInterface
             $profile_name = 'Handler: ' . get_class($object);
             Yii::beginProfile($profile_name);
             $info = $object->getGeoInfo($ip);
-            if (
-                $info instanceof GeoInfo &&
+            if ($info instanceof GeoInfo &&
                 (
                     $info->country->iso_3166_1_alpha_2 ||
                     $info->country->iso_3166_1_alpha_3 ||
@@ -197,6 +198,24 @@ class Multilingual extends Component implements BootstrapInterface
     public function geo()
     {
         return $this->geo;
+    }
+
+    /**
+     * Returns URL for current request translated on specified language
+     * @param int $language_id
+     *
+     * @return string
+     */
+    public function translateCurrentRequest($language_id)
+    {
+        $params = ArrayHelper::merge(
+            [Yii::$app->requestedRoute],
+            Yii::$app->request->getQueryParams(),
+            [
+                'language_id' => $language_id,
+            ]
+        );
+        return Url::to($params);
     }
 
 }
