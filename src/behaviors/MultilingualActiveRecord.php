@@ -94,7 +94,8 @@ class MultilingualActiveRecord extends Behavior
 
         /** @var \DevGroup\Multilingual\Multilingual $multilingual */
         $multilingual = Yii::$app->multilingual;
-        if ($language_id === null || $language_id === $multilingual->language_id) {
+        /** @var ActiveRecord $owner */
+        if (($language_id === null || $language_id === $multilingual->language_id) && !$this->owner->isRelationPopulated($this->translationRelation)) {
             $language_id = $multilingual->language_id;
             $translation = $this->owner->{$this->defaultTranslationRelation};
             if ($translation !== null) {
@@ -213,7 +214,7 @@ class MultilingualActiveRecord extends Behavior
         // that's because of "update lazily loaded related objects" in link
         // so we are saving them into variable and empty _related of model
         $owner->populateRelation($this->translationRelation, []);
-
+                
         foreach ($translations as $translation) {
             $owner->link($this->translationRelation, $translation);
         }
