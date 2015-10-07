@@ -94,16 +94,20 @@ class MultilingualActiveRecord extends Behavior
 
         /** @var \DevGroup\Multilingual\Multilingual $multilingual */
         $multilingual = Yii::$app->multilingual;
-        /** @var ActiveRecord $owner */
-        if (($language_id === null || $language_id === $multilingual->language_id) && !$this->owner->isRelationPopulated($this->translationRelation)) {
+        if ($language_id === null) {
             $language_id = $multilingual->language_id;
-            $translation = $this->owner->{$this->defaultTranslationRelation};
+        }
+        /** @var ActiveRecord $owner */
+        $owner = $this->owner;
+        if ($language_id === $multilingual->language_id && !$owner->isRelationPopulated($this->translationRelation)) {
+            $language_id = $multilingual->language_id;
+            $translation = $owner->{$this->defaultTranslationRelation};
             if ($translation !== null) {
                 return $translation;
             }
         } else {
             // language id specified and it's not default
-            $translations = $this->owner->{$this->translationRelation};
+            $translations = $owner->{$this->translationRelation};
             foreach ($translations as $item) {
                 if ($item->language_id === $language_id) {
                     return $item;
@@ -112,8 +116,6 @@ class MultilingualActiveRecord extends Behavior
         }
         // translation does not exists!
 
-        /** @var ActiveRecord $owner */
-        $owner = $this->owner;
         /** @var ActiveRecord $class */
         $class = $this->getTranslationModelClassName();
         /** @var ActiveRecord $translation */
@@ -214,7 +216,7 @@ class MultilingualActiveRecord extends Behavior
         // that's because of "update lazily loaded related objects" in link
         // so we are saving them into variable and empty _related of model
         $owner->populateRelation($this->translationRelation, []);
-                
+
         foreach ($translations as $translation) {
             $owner->link($this->translationRelation, $translation);
         }
