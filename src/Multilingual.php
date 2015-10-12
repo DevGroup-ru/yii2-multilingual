@@ -16,6 +16,7 @@ class Multilingual extends Component implements BootstrapInterface
 {
     /** @var bool Use X-Forwarded-For for ip detection */
     public $useXForwardedFor = false;
+
     /** @var bool Use CLIENT_IP header for ip detection */
     public $useClientIp = false;
 
@@ -48,6 +49,7 @@ class Multilingual extends Component implements BootstrapInterface
 
     /** @var string Application cache component name */
     public $cache = 'cache';
+
     /**
      * @var int Cache lifetime in seconds. Defaults to 2 weeks(1209600).
      */
@@ -69,6 +71,10 @@ class Multilingual extends Component implements BootstrapInterface
             ],
         ]
     ];
+
+    /**
+     * Initializes the component
+     */
     public function init()
     {
         parent::init();
@@ -204,7 +210,6 @@ class Multilingual extends Component implements BootstrapInterface
             }
         }
         if ($this->cookie_language_id === null) {
-
             $this->cookie_language_id = $this->language_id;
 
             Yii::$app->response->cookies->add(new Cookie([
@@ -245,5 +250,4 @@ class Multilingual extends Component implements BootstrapInterface
         );
         return Url::to($params);
     }
-
 }

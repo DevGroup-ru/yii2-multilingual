@@ -35,6 +35,9 @@ class UrlManager extends BaseUrlManager
         '' => 'site/index',
     ];
 
+    /** @var null|string null to set scheme as it is requested, string(http or https) for exact scheme forcing */
+    public $forceScheme = null;
+
     /**
      * @return \yii\caching\Cache
      */
@@ -99,7 +102,11 @@ class UrlManager extends BaseUrlManager
             return $url;
         }
 
-        $scheme = Yii::$app->request->getIsSecureConnection() ? 'https' : 'http';
+        if ($this->forceScheme !== false) {
+            $scheme = $this->forceScheme;
+        } else {
+            $scheme = Yii::$app->request->getIsSecureConnection() ? 'https' : 'http';
+        }
         $port = Yii::$app->request->port === 80 ? '' : ':' . Yii::$app->request->port;
         return $scheme . '://' . $requested_language->domain . $port . '/' . ltrim($url, '/');
     }
