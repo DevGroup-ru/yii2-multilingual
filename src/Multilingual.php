@@ -91,6 +91,8 @@ class Multilingual extends Component implements BootstrapInterface
         $app->on(Application::EVENT_BEFORE_REQUEST, function () {
             $this->retrieveInfo();
             $this->retrieveLanguageFromGeo();
+        });
+        $app->on(Application::EVENT_BEFORE_ACTION, function () {
             $this->retrieveCookieLanguage();
         });
 
