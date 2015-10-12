@@ -3,12 +3,14 @@
 namespace DevGroup\Multilingual;
 
 use DevGroup\Multilingual\models\CountryLanguage;
+use DevGroup\Multilingual\models\Language;
 use Yii;
 use yii\base\Application;
 use yii\base\BootstrapInterface;
 use yii\base\Component;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Url;
+use yii\web\Cookie;
 
 class Multilingual extends Component implements BootstrapInterface
 {
@@ -30,6 +32,9 @@ class Multilingual extends Component implements BootstrapInterface
 
     /** @var null|int User language ID determined by URL */
     public $language_id = null;
+
+    /** @var null|int Language ID from his cookie */
+    public $cookie_language_id = null;
 
     /** @var bool The case when geo information is ok, but no match for country->app-language */
     public $geo_default_language_forced = false;
@@ -80,6 +85,7 @@ class Multilingual extends Component implements BootstrapInterface
         $app->on(Application::EVENT_BEFORE_REQUEST, function () {
             $this->retrieveInfo();
             $this->retrieveLanguageFromGeo();
+            $this->retrieveCookieLanguage();
         });
 
     }
@@ -184,6 +190,30 @@ class Multilingual extends Component implements BootstrapInterface
         }
         $this->geo_default_language_forced = true;
         $this->language_id_geo = $this->default_language_id;
+    }
+
+    /**
+     * Retrieves language form cookie
+     */
+    public function retrieveCookieLanguage()
+    {
+        if (Yii::$app->request->cookies->has('language_id')) {
+            $language_id = intval(Yii::$app->request->cookies->get('language_id'));
+            if (Language::findOne($language_id) !== null) {
+                $this->cookie_language_id = $language_id;
+            }
+        }
+        if ($this->cookie_language_id === null) {
+            if ($this->language_id_geo !== null) {
+                $this->cookie_language_id = $this->language_id_geo;
+            } else {
+                $this->cookie_language_id = $this->language_id;
+            }
+            Yii::$app->response->cookies->add(new Cookie([
+                'name' => 'language_id',
+                'value' => $this->cookie_language_id,
+            ]));
+        }
     }
 
     /**

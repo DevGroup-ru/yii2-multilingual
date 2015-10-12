@@ -25,7 +25,7 @@ class UrlManager extends BaseUrlManager
 
     public $languageParam = 'language_id';
 
-    private $force_host_in_url = false;
+    private $forceHostInUrl = false;
 
     public $enablePrettyUrl = true;
 
@@ -95,7 +95,7 @@ class UrlManager extends BaseUrlManager
         if (!empty($requested_language->folder)) {
             $url = '/' . $requested_language->folder .'/' . ltrim($url, '/');
         }
-        if ($current_language_id === $requested_language->id && $this->force_host_in_url === false) {
+        if ($current_language_id === $requested_language->id && $this->forceHostInUrl === false) {
             return $url;
         }
 
@@ -140,24 +140,27 @@ class UrlManager extends BaseUrlManager
                 break;
             }
         }
-        if ($languageMatched === false) {
-            // no matched language - try parseRequest and check if this route is in excluded
-            if (is_array($this->excludeRoutes)) {
-                $resolved = parent::parseRequest($request);
-                if (is_array($resolved)) {
-                    $route = reset($resolved);
-                    if (in_array($route, $this->excludeRoutes)) {
-                        return $resolved;
-                    }
+        if (is_array($this->excludeRoutes)) {
+            $resolved = parent::parseRequest($request);
+            if (is_array($resolved)) {
+                $route = reset($resolved);
+                if (in_array($route, $this->excludeRoutes)) {
+                    $multilingual->language_id = $multilingual->cookie_language_id;
+                    /** @var Language $lang */
+                    $lang = Language::findOne($multilingual->cookie_language_id);
+                    Yii::$app->language = $lang->yii_language;
+                    return $resolved;
                 }
             }
+        }
 
+        if ($languageMatched === false) {
             // no matched language and not in excluded routes - should redirect to user's regional domain with 302
 
-            $this->force_host_in_url = true;
+            $this->forceHostInUrl = true;
             $url = $this->createUrl([$request->pathInfo, 'language_id' => $multilingual->language_id_geo]);
             Yii::$app->response->redirect($url, 302, false);
-            $this->force_host_in_url = false;
+            $this->forceHostInUrl = false;
             Yii::$app->end();
         }
 
