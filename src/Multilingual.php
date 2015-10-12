@@ -204,11 +204,9 @@ class Multilingual extends Component implements BootstrapInterface
             }
         }
         if ($this->cookie_language_id === null) {
-            if ($this->language_id_geo !== null) {
-                $this->cookie_language_id = $this->language_id_geo;
-            } else {
-                $this->cookie_language_id = $this->language_id;
-            }
+
+            $this->cookie_language_id = $this->language_id;
+
             Yii::$app->response->cookies->add(new Cookie([
                 'name' => 'language_id',
                 'value' => $this->cookie_language_id,
