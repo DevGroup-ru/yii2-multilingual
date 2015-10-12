@@ -198,7 +198,7 @@ class Multilingual extends Component implements BootstrapInterface
     public function retrieveCookieLanguage()
     {
         if (Yii::$app->request->cookies->has('language_id')) {
-            $language_id = intval(Yii::$app->request->cookies->get('language_id'));
+            $language_id = intval(Yii::$app->request->cookies->get('language_id')->value);
             if (Language::findOne($language_id) !== null) {
                 $this->cookie_language_id = $language_id;
             }
