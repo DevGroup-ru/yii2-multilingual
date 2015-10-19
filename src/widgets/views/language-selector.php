@@ -14,7 +14,7 @@ use yii\helpers\Html;
     </a>
     <ul class="dropdown-menu">
 <?php
-foreach ($languages as $language):
+foreach ($languages as $language) :
     if ($language->id === $currentLanguageId) {
         continue;
     }

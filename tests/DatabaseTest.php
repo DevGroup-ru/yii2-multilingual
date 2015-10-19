@@ -11,6 +11,7 @@ use DevGroup\Multilingual\tests\models\AllPostNoTrait;
 use DevGroup\Multilingual\tests\models\Post;
 use DevGroup\Multilingual\tests\models\PostTranslation;
 use DevGroup\Multilingual\tests\models\PostNoScope;
+use DevGroup\Multilingual\widgets\HrefLang;
 use Yii;
 use yii\base\ExitException;
 use yii\helpers\Url;
@@ -48,6 +49,7 @@ class DatabaseTest extends \PHPUnit_Extensions_Database_TestCase
             'id' => 'unit',
             'basePath' => __DIR__,
             'bootstrap' => ['log','multilingual'],
+            'controllerNamespace' => 'DevGroup\Multilingual\tests\controllers',
             'components' => [
                 'log' => [
                     'traceLevel' => 10,
@@ -85,8 +87,8 @@ class DatabaseTest extends \PHPUnit_Extensions_Database_TestCase
                     ],
                 ],
                 'filedb' => [
-                        'class' => 'yii2tech\filedb\Connection',
-                        'path' => __DIR__ . '/data',
+                    'class' => 'yii2tech\filedb\Connection',
+                    'path' => __DIR__ . '/data',
                 ],
             ],
         ]));
@@ -260,8 +262,8 @@ class DatabaseTest extends \PHPUnit_Extensions_Database_TestCase
             'cookieValidationKey' => 'wefJDF8sfdsfSDefwqdxj9oq',
             'scriptFile' => __DIR__ .'/index.php',
             'scriptUrl' => '/index.php',
-        ]);;
-        Yii::$app->request->resolve();
+        ]);
+        return Yii::$app->request->resolve();
     }
 
 
@@ -355,5 +357,40 @@ class DatabaseTest extends \PHPUnit_Extensions_Database_TestCase
         $this->assertTrue($post->hasTranslation());
 
 
+    }
+
+    public function testHreflang()
+    {
+        /** @var \DevGroup\Multilingual\Multilingual $multilingual */
+        $multilingual = Yii::$app->multilingual;
+        // test good domain
+        $_SERVER['SERVER_NAME'] = 'example.ru';
+        $_SERVER['REQUEST_URI'] = '/site/index';
+
+        Yii::$app->trigger(Application::EVENT_BEFORE_REQUEST);
+        $this->resolve();
+
+        Yii::$app->handleRequest(Yii::$app->request);
+
+        $this->assertEquals(2, $multilingual->language_id_geo);
+        $this->assertEquals(2, $multilingual->language_id);
+        Yii::$app->controller = Yii::$app->createController('/site')[0];
+        $expected = '<link href="http://example.com/en/" rel="alternate" hreflang="en">
+<link href="http://example.com/de/" rel="alternate" hreflang="de">
+';
+        $this->assertEquals($expected, HrefLang::widget());
+
+        // test another url
+        $_SERVER['REQUEST_URI'] = '/site/about';
+
+        $this->resolve();
+        Yii::$app->handleRequest(Yii::$app->request);
+        $this->assertEquals(2, $multilingual->language_id_geo);
+        $this->assertEquals(2, $multilingual->language_id);
+
+        $expected = '<link href="http://example.com/en/site/about" rel="alternate" hreflang="en">
+<link href="http://example.com/de/site/about" rel="alternate" hreflang="de">
+';
+        $this->assertEquals($expected, HrefLang::widget());
     }
 }
