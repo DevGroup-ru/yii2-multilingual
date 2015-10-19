@@ -14,6 +14,7 @@ use yii\helpers\Html;
  * ```php
  * <?= \DevGroup\Multilingual\widgets\HrefLang::widget() ?>
  * ```
+ *
  * @see https://support.google.com/webmasters/answer/189077
  * @see https://yandex.ru/support/webmaster/yandex-indexing/locale-pages.xml (Russian)
  * @see https://yandex.com/support/webmaster/yandex-indexing/localized-markup.xml (English)
