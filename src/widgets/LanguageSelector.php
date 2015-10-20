@@ -10,7 +10,7 @@ class LanguageSelector extends Widget
 {
     public $viewFile = 'language-selector';
 
-    public $blockClass = 'b-language-selector';
+    public $blockClass = 'b-language-selector dropdown';
     public $blockId = '';
 
     public function run()

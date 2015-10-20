@@ -3,6 +3,11 @@
     "description": "Allows building yii2 apps for multiple languages using regional URL's and domains",
     "type": "yii2-extension",
     "keywords": ["yii2","extension","i18n","l10n","language","multilingual","hreflang"],
+    "homepage": "http://www.devgroup.ru/",
+    "support": {
+        "issues": "https://github.com/devgroup-ru/yii2-multilingual/issues?state=open",
+        "source": "https://github.com/devgroup-ru/yii2-multilingual"
+    },
     "license": "MIT",
     "minimum-stability": "dev",
     "authors": [
