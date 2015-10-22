@@ -163,6 +163,9 @@ class UrlManager extends BaseUrlManager
                     $multilingual->language_id = $multilingual->cookie_language_id;
                     /** @var Language $lang */
                     $lang = Language::findOne($multilingual->cookie_language_id);
+                    if ($lang === null) {
+                        $lang = Language::findOne($multilingual->default_language_id);
+                    }
                     Yii::$app->language = $lang->yii_language;
                     return $resolved;
                 }
