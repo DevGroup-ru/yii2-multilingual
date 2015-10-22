@@ -159,7 +159,7 @@ class UrlManager extends BaseUrlManager
             $resolved = parent::parseRequest($request);
             if (is_array($resolved)) {
                 $route = reset($resolved);
-                if (in_array($route, $this->excludeRoutes)) {
+                if (in_array($route, $this->excludeRoutes) && is_null($multilingual->cookie_language_id) === false) {
                     $multilingual->language_id = $multilingual->cookie_language_id;
                     /** @var Language $lang */
                     $lang = Language::findOne($multilingual->cookie_language_id);
