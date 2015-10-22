@@ -36,7 +36,7 @@ to the require section of your `composer.json` file.
 
 ### Configure your application
 
-In your `web.php` config add the following:
+In your `web.php` config add the following components:
 
 ``` php
         // URL Manager is needed to build correct URL's
