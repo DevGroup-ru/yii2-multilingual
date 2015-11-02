@@ -2,7 +2,7 @@ build:
     dependencies:
         before:
             - sudo composer self-update && composer --version
-            - composer global require "fxp/composer-asset-plugin:1.0.0"
+            - composer global require "fxp/composer-asset-plugin:~1.1.0"
             - mysql -e 'create database yii2_multilingual;'
             - mysql yii2_multilingual < tests/migrations/mysql.sql
 
