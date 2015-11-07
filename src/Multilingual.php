@@ -243,7 +243,7 @@ class Multilingual extends Component implements BootstrapInterface
     public function translateCurrentRequest($language_id)
     {
         $params = ArrayHelper::merge(
-            [Yii::$app->requestedRoute],
+            ['/' . ltrim(Yii::$app->requestedRoute, '/')],
             Yii::$app->request->getQueryParams(),
             [
                 'language_id' => $language_id,
