@@ -17,6 +17,9 @@ class Multilingual extends Component implements BootstrapInterface
     /** @var bool Use X-Forwarded-For for ip detection */
     public $useXForwardedFor = false;
 
+    /** @var bool Detecting language automatically */
+    public $usePreferredLanguage = false;
+
     /** @var bool Use CLIENT_IP header for ip detection */
     public $useClientIp = false;
 
@@ -91,7 +94,8 @@ class Multilingual extends Component implements BootstrapInterface
         $app->on(Application::EVENT_BEFORE_REQUEST, function () {
             $this->retrieveInfo();
             $this->retrieveLanguageFromGeo();
-
+        });
+        $app->on(Application::EVENT_BEFORE_ACTION, function () {
             $this->retrieveCookieLanguage();
         });
 
@@ -220,6 +224,41 @@ class Multilingual extends Component implements BootstrapInterface
         }
     }
 
+    /***
+     *
+     * @return int
+     */
+    public function getUserDefaultLanguage()
+    {
+        $id_language = false;
+        if ($this->usePreferredLanguage) {
+            $id_language = $this->getPreferredLanguage();
+        } elseif ($this->language_id_geo) {
+            $id_language = $this->language_id_geo;
+        }
+        return !empty($id_language) ? $id_language : $this->default_language_id;
+    }
+
+    /**
+     * @return bool|int
+     */
+    protected function getPreferredLanguage()
+    {
+        $id_language = false;
+        $languages = array_reduce(
+            Language::find()->asArray()->all(),
+            function ($arr, $i) {
+                $arr[$i['yii_language']] = $i['id'];
+                return $arr;
+            },
+            []
+        );
+        if ($lang_name = Yii::$app->request->getPreferredLanguage(array_keys($languages))) {
+            $id_language = $languages[$lang_name];
+        }
+        return $id_language;
+    }
+
     /**
      * @return \yii\caching\Cache
      */
@@ -243,7 +282,7 @@ class Multilingual extends Component implements BootstrapInterface
     public function translateCurrentRequest($language_id)
     {
         $params = ArrayHelper::merge(
-            ['/' . ltrim(Yii::$app->requestedRoute, '/')],
+            [Yii::$app->requestedRoute],
             Yii::$app->request->getQueryParams(),
             [
                 'language_id' => $language_id,

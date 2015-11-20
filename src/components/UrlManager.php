@@ -14,10 +14,10 @@ class UrlManager extends BaseUrlManager
 
     public $cacheLifetime = 86400;
 
-    /** @var bool|array  */
+    /** @var bool|array */
     public $includeRoutes = false;
 
-    /** @var bool|array  */
+    /** @var bool|array */
     public $excludeRoutes = [
         'site/login',
         'site/logout',
@@ -54,7 +54,7 @@ class UrlManager extends BaseUrlManager
      */
     public function createUrl($params)
     {
-        $params = (array) $params;
+        $params = (array)$params;
         $route = trim($params[0], '/');
 
         if ($this->excludeRoutes !== false) {
@@ -99,7 +99,7 @@ class UrlManager extends BaseUrlManager
 
         $url = parent::createUrl($params);
         if (!empty($requested_language->folder)) {
-            $url = '/' . $requested_language->folder .'/' . ltrim($url, '/');
+            $url = '/' . $requested_language->folder . '/' . ltrim($url, '/');
         }
         if ($current_language_id === $requested_language->id && $this->forceHostInUrl === false) {
             return $url;
@@ -139,6 +139,7 @@ class UrlManager extends BaseUrlManager
         $path = explode('/', $request->pathInfo);
         $folder = array_shift($path);
         $languages = Language::find()->all();
+
         /** @var bool|Language $languageMatched */
         $languageMatched = false;
         foreach ($languages as $language) {
@@ -159,34 +160,32 @@ class UrlManager extends BaseUrlManager
             $resolved = parent::parseRequest($request);
             if (is_array($resolved)) {
                 $route = reset($resolved);
-                if (in_array($route, $this->excludeRoutes) && is_null($multilingual->cookie_language_id) === false) {
+                if (in_array($route, $this->excludeRoutes)) {
                     $multilingual->language_id = $multilingual->cookie_language_id;
                     /** @var Language $lang */
                     $lang = Language::findOne($multilingual->cookie_language_id);
-                    if ($lang === null) {
-                        $lang = Language::findOne($multilingual->default_language_id);
-                    }
                     Yii::$app->language = $lang->yii_language;
                     return $resolved;
                 }
             }
         }
-
         if ($languageMatched === false) {
-            // no matched language and not in excluded routes - should redirect to user's regional domain with 302
 
+            $supportedLanguages = ['en', 'ru'];
+            $languages = Yii::$app->request->getPreferredLanguage($supportedLanguages);
+
+            // no matched language and not in excluded routes - should redirect to user's regional domain with 302
             $this->forceHostInUrl = true;
-            $url = $this->createUrl([$request->pathInfo, 'language_id' => $multilingual->language_id_geo]);
+            $url = $this->createUrl([$request->pathInfo, 'language_id' => $multilingual->getUserDefaultLanguage()]);
             Yii::$app->response->redirect($url, 302, false);
             $this->forceHostInUrl = false;
             Yii::$app->end();
         }
 
 
-
         if (!empty($languageMatched->folder)) {
             if ($languageMatched->folder === $request->pathInfo) {
-                Yii::$app->response->redirect('/'.$request->pathInfo.'/', 301, false);
+                Yii::$app->response->redirect('/' . $request->pathInfo . '/', 301, false);
                 Yii::$app->end();
             }
             // matched language urls are made with subfolders
