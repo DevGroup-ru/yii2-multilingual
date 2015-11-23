@@ -194,11 +194,9 @@ class UrlManager extends BaseUrlManager
         }
 
         $this->trigger(self::AFTER_GET_LANGUAGE, $event);
+
         if ($event->redirectUrl !== false) {
-            // no matched language and not in excluded routes - should redirect to user's regional domain with 302
-            \Yii::$app->urlManager->forceHostInUrl = true;
             Yii::$app->response->redirect($event->redirectUrl, 302, false);
-            $this->forceHostInUrl = false;
             Yii::$app->end();
         }
         if (!empty($languageMatched->folder)) {
