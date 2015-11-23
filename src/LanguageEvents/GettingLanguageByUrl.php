@@ -1,5 +1,5 @@
 <?php
-namespace DevGroup\Multilingual\languageEvents;
+namespace DevGroup\Multilingual\LanguageEvents;
 
 use DevGroup\Multilingual\models\Language;
 

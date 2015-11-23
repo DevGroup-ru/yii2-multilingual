@@ -2,9 +2,9 @@
 
 namespace DevGroup\Multilingual\components;
 
-use DevGroup\Multilingual\languageEvents\AfterGettingLanguage;
-use DevGroup\Multilingual\languageEvents\GettingLanguage;
-use DevGroup\Multilingual\languageEvents\languageEvent;
+use DevGroup\Multilingual\LanguageEvents\AfterGettingLanguage;
+use DevGroup\Multilingual\LanguageEvents\GettingLanguage;
+use DevGroup\Multilingual\LanguageEvents\languageEvent;
 use DevGroup\Multilingual\models\Language;
 use Yii;
 use yii\web\ServerErrorHttpException;
@@ -56,8 +56,8 @@ class UrlManager extends BaseUrlManager
     }
 
     public $requestEvents = [
-        'DevGroup\Multilingual\languageEvents\GettingLanguageByUrl',
-        'DevGroup\Multilingual\languageEvents\GettingLanguageByUserInformation',
+        'DevGroup\Multilingual\LanguageEvents\GettingLanguageByUrl',
+        'DevGroup\Multilingual\LanguageEvents\GettingLanguageByUserInformation',
     ];
 
     /**

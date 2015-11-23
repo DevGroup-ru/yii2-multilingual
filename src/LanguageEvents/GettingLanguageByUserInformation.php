@@ -1,6 +1,6 @@
 <?php
 
-namespace DevGroup\Multilingual\languageEvents;
+namespace DevGroup\Multilingual\LanguageEvents;
 
 class GettingLanguageByUserInformation implements GettingLanguage
 {

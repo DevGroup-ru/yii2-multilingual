@@ -1,6 +1,6 @@
 <?php
 
-namespace DevGroup\Multilingual\languageEvents;
+namespace DevGroup\Multilingual\LanguageEvents;
 
 use yii\base\Event;
 
