@@ -2,6 +2,9 @@
 
 namespace DevGroup\Multilingual\components;
 
+use DevGroup\Multilingual\languageEvents\AfterGettingLanguage;
+use DevGroup\Multilingual\languageEvents\GettingLanguage;
+use DevGroup\Multilingual\languageEvents\languageEvent;
 use DevGroup\Multilingual\models\Language;
 use Yii;
 use yii\web\ServerErrorHttpException;
@@ -9,6 +12,9 @@ use yii\web\UrlManager as BaseUrlManager;
 
 class UrlManager extends BaseUrlManager
 {
+
+    const GET_LANGUAGE = 'get_language';
+    const AFTER_GET_LANGUAGE = 'after_get_language';
 
     public $cache = 'cache';
 
@@ -25,7 +31,7 @@ class UrlManager extends BaseUrlManager
 
     public $languageParam = 'language_id';
 
-    private $forceHostInUrl = false;
+    public $forceHostInUrl = false;
 
     public $enablePrettyUrl = true;
 
@@ -48,6 +54,11 @@ class UrlManager extends BaseUrlManager
     {
         return Yii::$app->get($this->cache);
     }
+
+    public $requestEvents = [
+        'DevGroup\Multilingual\languageEvents\GettingLanguageByUrl',
+        'DevGroup\Multilingual\languageEvents\GettingLanguageByUserInformation',
+    ];
 
     /**
      * @inheritdoc
@@ -122,7 +133,7 @@ class UrlManager extends BaseUrlManager
     /**
      * @return string Requested domain
      */
-    private function requestedDomain()
+    public function requestedDomain()
     {
         return isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : Yii::$app->request->serverName;
     }
@@ -134,28 +145,40 @@ class UrlManager extends BaseUrlManager
     {
         /** @var \DevGroup\Multilingual\Multilingual $multilingual */
         $multilingual = Yii::$app->multilingual;
-        $domain = $this->requestedDomain();
+        foreach ($this->requestEvents as $filter) {
+            if (is_subclass_of($filter, GettingLanguage::class)) {
+                $this->on(self::GET_LANGUAGE, [$filter, 'gettingLanguage']);
+            }
+            if (is_subclass_of($filter, AfterGettingLanguage::class)) {
+                $this->on(self::AFTER_GET_LANGUAGE, [$filter, 'afterGettingLanguage']);
+            }
+        }
+        $event = new languageEvent();
+        $event->multilingual = $multilingual;
+        $event->domain = $this->requestedDomain();
+        $event->languages = array_reduce(
+            Language::find()->all(),
+            function ($arr, $i) {
+                $arr[$i->id] = $i;
+                return $arr;
+            },
+            []
+        );
+        $this->trigger(self::GET_LANGUAGE, $event);
+
+        $multilingual->language_id = $event->currentLanguageId ?
+            $event->currentLanguageId :
+            $multilingual->default_language_id;
+
+        $languageMatched = $event->languages[$multilingual->language_id];
+        Yii::$app->language = $event->languages[$multilingual->language_id]->yii_language;
+
 
         $path = explode('/', $request->pathInfo);
         $folder = array_shift($path);
-        $languages = Language::find()->all();
 
         /** @var bool|Language $languageMatched */
-        $languageMatched = false;
-        foreach ($languages as $language) {
-            $matchedDomain = $language->domain === $domain;
-            if (empty($language->folder)) {
-                $matchedFolder = $matchedDomain;
-            } else {
-                $matchedFolder = $language->folder === $folder;
-            }
-            if ($matchedDomain && $matchedFolder) {
-                $languageMatched = $language;
-                $multilingual->language_id = $language->id;
-                Yii::$app->language = $language->yii_language;
-                break;
-            }
-        }
+
         if (is_array($this->excludeRoutes)) {
             $resolved = parent::parseRequest($request);
             if (is_array($resolved)) {
@@ -169,20 +192,15 @@ class UrlManager extends BaseUrlManager
                 }
             }
         }
-        if ($languageMatched === false) {
 
-            $supportedLanguages = ['en', 'ru'];
-            $languages = Yii::$app->request->getPreferredLanguage($supportedLanguages);
-
+        $this->trigger(self::AFTER_GET_LANGUAGE, $event);
+        if ($event->redirectUrl !== false) {
             // no matched language and not in excluded routes - should redirect to user's regional domain with 302
-            $this->forceHostInUrl = true;
-            $url = $this->createUrl([$request->pathInfo, 'language_id' => $multilingual->getUserDefaultLanguage()]);
-            Yii::$app->response->redirect($url, 302, false);
+            \Yii::$app->urlManager->forceHostInUrl = true;
+            Yii::$app->response->redirect($event->redirectUrl, 302, false);
             $this->forceHostInUrl = false;
             Yii::$app->end();
         }
-
-
         if (!empty($languageMatched->folder)) {
             if ($languageMatched->folder === $request->pathInfo) {
                 Yii::$app->response->redirect('/' . $request->pathInfo . '/', 301, false);

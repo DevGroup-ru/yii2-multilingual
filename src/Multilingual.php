@@ -2,6 +2,7 @@
 
 namespace DevGroup\Multilingual;
 
+use DevGroup\Multilingual\languagesFilters\GettingLanguage;
 use DevGroup\Multilingual\models\CountryLanguage;
 use DevGroup\Multilingual\models\Language;
 use Yii;
@@ -74,6 +75,7 @@ class Multilingual extends Component implements BootstrapInterface
             ],
         ]
     ];
+
 
     /**
      * Initializes the component
@@ -222,41 +224,6 @@ class Multilingual extends Component implements BootstrapInterface
                 'value' => $this->cookie_language_id,
             ]));
         }
-    }
-
-    /***
-     *
-     * @return int
-     */
-    public function getUserDefaultLanguage()
-    {
-        $id_language = false;
-        if ($this->usePreferredLanguage) {
-            $id_language = $this->getPreferredLanguage();
-        } elseif ($this->language_id_geo) {
-            $id_language = $this->language_id_geo;
-        }
-        return !empty($id_language) ? $id_language : $this->default_language_id;
-    }
-
-    /**
-     * @return bool|int
-     */
-    protected function getPreferredLanguage()
-    {
-        $id_language = false;
-        $languages = array_reduce(
-            Language::find()->asArray()->all(),
-            function ($arr, $i) {
-                $arr[$i['yii_language']] = $i['id'];
-                return $arr;
-            },
-            []
-        );
-        if ($lang_name = Yii::$app->request->getPreferredLanguage(array_keys($languages))) {
-            $id_language = $languages[$lang_name];
-        }
-        return $id_language;
     }
 
     /**
