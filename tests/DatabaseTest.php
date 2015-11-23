@@ -48,7 +48,7 @@ class DatabaseTest extends \PHPUnit_Extensions_Database_TestCase
         (new \yii\web\Application([
             'id' => 'unit',
             'basePath' => __DIR__,
-            'bootstrap' => ['log','multilingual'],
+            'bootstrap' => ['log', 'multilingual'],
             'controllerNamespace' => 'DevGroup\Multilingual\tests\controllers',
             'components' => [
                 'log' => [
@@ -62,7 +62,7 @@ class DatabaseTest extends \PHPUnit_Extensions_Database_TestCase
                 ],
                 'request' => [
                     'cookieValidationKey' => 'wefJDF8sfdsfSDefwqdxj9oq',
-                    'scriptFile' => __DIR__ .'/index.php',
+                    'scriptFile' => __DIR__ . '/index.php',
                     'scriptUrl' => '/index.php',
                 ],
                 'cache' => [
@@ -129,6 +129,7 @@ class DatabaseTest extends \PHPUnit_Extensions_Database_TestCase
         parent::tearDown();
         $this->destroyApplication();
     }
+
     /**
      * Destroys application in Yii::$app by setting it to null.
      */
@@ -153,7 +154,7 @@ class DatabaseTest extends \PHPUnit_Extensions_Database_TestCase
         try {
             $this->resolve();
         } catch (ExitException $e) {
-            $this->assertArraySubset(['location'=>['http://example.ru/']], Yii::$app->response->headers->toArray());
+            $this->assertArraySubset(['location' => ['http://example.ru/']], Yii::$app->response->headers->toArray());
             $this->assertEquals(302, Yii::$app->response->statusCode);
             $this->assertEquals(2, $multilingual->language_id_geo);
         }
@@ -172,7 +173,7 @@ class DatabaseTest extends \PHPUnit_Extensions_Database_TestCase
         try {
             $this->resolve();
         } catch (ExitException $e) {
-            $this->assertArraySubset(['location'=>['http://example.ru/']], Yii::$app->response->headers->toArray());
+            $this->assertArraySubset(['location' => ['http://example.ru/']], Yii::$app->response->headers->toArray());
             $this->assertEquals(302, Yii::$app->response->statusCode);
             $this->assertEquals(2, $multilingual->language_id_geo);
             $this->assertEquals(2, $multilingual->language_id);
@@ -182,13 +183,14 @@ class DatabaseTest extends \PHPUnit_Extensions_Database_TestCase
         $_SERVER['SERVER_NAME'] = 'example.com';
         $_SERVER['REQUEST_URI'] = '/en/';
 
-        $this->resolve();
-
-        // geo = ru
-        $this->assertEquals(2, $multilingual->language_id_geo);
-        // url requested geo = en
-        $this->assertEquals(1, $multilingual->language_id);
-
+        try {
+            $this->resolve();
+        } catch (ExitException $e) {
+            // geo = ru
+            $this->assertEquals(2, $multilingual->language_id_geo);
+            // url requested geo = en
+            $this->assertEquals(1, $multilingual->language_id);
+        }
         // geo = ru, domain != ru, proper eng folder and some url
         $_SERVER['SERVER_NAME'] = 'example.com';
         $_SERVER['REQUEST_URI'] = '/en/url/to?something=yes';
@@ -206,7 +208,8 @@ class DatabaseTest extends \PHPUnit_Extensions_Database_TestCase
         try {
             $this->resolve();
         } catch (ExitException $e) {
-            $this->assertArraySubset(['location'=>['http://example.com/en/']], Yii::$app->response->headers->toArray());
+            $this->assertArraySubset(['location' => ['http://example.com/en/']],
+                Yii::$app->response->headers->toArray());
             $this->assertEquals(301, Yii::$app->response->statusCode);
             $this->assertEquals(2, $multilingual->language_id_geo);
             $this->assertEquals(1, $multilingual->language_id);
@@ -228,14 +231,16 @@ class DatabaseTest extends \PHPUnit_Extensions_Database_TestCase
         // url requested geo = en
         $this->assertEquals(1, $multilingual->language_id);
 
-        $this->assertEquals('/en/site/about?id=1', Url::to(['/site/about', 'id'=>1]));
-        $this->assertEquals('http://example.ru/site/about?id=1', Url::to(['/site/about', 'id'=>1, 'language_id' => 2]));
-        $this->assertEquals('http://example.com/de/site/about?id=1', Url::to(['/site/about', 'id'=>1, 'language_id' => 3]));
+        $this->assertEquals('/en/site/about?id=1', Url::to(['/site/about', 'id' => 1]));
+        $this->assertEquals('http://example.ru/site/about?id=1',
+            Url::to(['/site/about', 'id' => 1, 'language_id' => 2]));
+        $this->assertEquals('http://example.com/de/site/about?id=1',
+            Url::to(['/site/about', 'id' => 1, 'language_id' => 3]));
         $this->assertEquals('http://example.com/en/site/about', Url::to(['/site/about'], true));
 
         $badLangTest = '';
         try {
-            $badLangTest = Url::to(['/site/about', 'id'=>1, 'language_id'=>-1]);
+            $badLangTest = Url::to(['/site/about', 'id' => 1, 'language_id' => -1]);
         } catch (ServerErrorHttpException $e) {
             $this->assertTrue(true);
         } catch (\Exception $e) {
@@ -260,7 +265,7 @@ class DatabaseTest extends \PHPUnit_Extensions_Database_TestCase
         Yii::$app->set('request', [
             'class' => \yii\web\Request::className(),
             'cookieValidationKey' => 'wefJDF8sfdsfSDefwqdxj9oq',
-            'scriptFile' => __DIR__ .'/index.php',
+            'scriptFile' => __DIR__ . '/index.php',
             'scriptUrl' => '/index.php',
         ]);
         return Yii::$app->request->resolve();
@@ -345,7 +350,7 @@ class DatabaseTest extends \PHPUnit_Extensions_Database_TestCase
 
         $this->assertEquals(1, $post->delete());
         $this->assertNull(AllPostNoTrait::findOne(6));
-        $this->assertNull(PostTranslation::findOne(['model_id'=>6,'language_id'=>3]));
+        $this->assertNull(PostTranslation::findOne(['model_id' => 6, 'language_id' => 3]));
 
 
         // find post with en but without ru and unpublished de

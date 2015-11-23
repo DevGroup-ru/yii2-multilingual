@@ -57,6 +57,7 @@ class UrlManager extends BaseUrlManager
 
     public $requestEvents = [
         'DevGroup\Multilingual\LanguageEvents\GettingLanguageByUrl',
+        'DevGroup\Multilingual\LanguageEvents\GettingLanguageByGeo',
         'DevGroup\Multilingual\LanguageEvents\GettingLanguageByUserInformation',
     ];
 
@@ -156,6 +157,7 @@ class UrlManager extends BaseUrlManager
         $event = new languageEvent();
         $event->multilingual = $multilingual;
         $event->domain = $this->requestedDomain();
+        $event->request = $request;
         $event->languages = array_reduce(
             Language::find()->all(),
             function ($arr, $i) {
@@ -170,10 +172,7 @@ class UrlManager extends BaseUrlManager
             $event->currentLanguageId :
             $multilingual->default_language_id;
 
-        $languageMatched = $event->languages[$multilingual->language_id];
         Yii::$app->language = $event->languages[$multilingual->language_id]->yii_language;
-
-
         $path = explode('/', $request->pathInfo);
         $folder = array_shift($path);
 
@@ -195,21 +194,10 @@ class UrlManager extends BaseUrlManager
 
         $this->trigger(self::AFTER_GET_LANGUAGE, $event);
 
-        if ($event->redirectUrl !== false) {
-            Yii::$app->response->redirect($event->redirectUrl, 302, false);
+        if ($event->redirectUrl !== false && $event->redirectCode !== false) {
+            Yii::$app->response->redirect($event->redirectUrl, $event->redirectCode, false);
             Yii::$app->end();
         }
-        if (!empty($languageMatched->folder)) {
-            if ($languageMatched->folder === $request->pathInfo) {
-                Yii::$app->response->redirect('/' . $request->pathInfo . '/', 301, false);
-                Yii::$app->end();
-            }
-            // matched language urls are made with subfolders
-            // cut them down(path was already shifted)
-            $request->setPathInfo(implode('/', $path));
-        }
-
-
         return parent::parseRequest($request);
     }
 }

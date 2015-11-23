@@ -10,6 +10,7 @@ class GettingLanguageByUrl implements GettingLanguage, AfterGettingLanguage
 
     public static function gettingLanguage(languageEvent $event)
     {
+        self::$redirectFlag = false;
         if ($event->currentLanguageId === false) {
             $path = explode('/', \Yii::$app->request->pathInfo);
             $folder = array_shift($path);
@@ -35,16 +36,24 @@ class GettingLanguageByUrl implements GettingLanguage, AfterGettingLanguage
     public static function afterGettingLanguage(languageEvent $event)
     {
 
-        if (self::$redirectFlag === true) {
-            // no matched language and not in excluded routes - should redirect to user's regional domain with 302
-            \Yii::$app->urlManager->forceHostInUrl = true;
-            $event->redirectUrl = \Yii::$app->urlManager->createUrl(
-                [
-                    \Yii::$app->request->pathInfo,
-                    'language_id' => $event->multilingual->language_id
-                ]
-            );
-            \Yii::$app->urlManager->forceHostInUrl = false;
+        $languageMatched = $event->languages[$event->multilingual->language_id];
+
+        if (self::$redirectFlag === true && $languageMatched->folder) {
+            if ($languageMatched->folder === $event->request->pathInfo) {
+                $event->redirectUrl = '/' . $event->request->pathInfo . '/';
+                $event->redirectCode = 301;
+            } else {
+                // no matched language and not in excluded routes - should redirect to user's regional domain with 302
+                \Yii::$app->urlManager->forceHostInUrl = true;
+                $event->redirectUrl = \Yii::$app->urlManager->createUrl(
+                    [
+                        $event->request->pathInfo,
+                        'language_id' => $event->multilingual->language_id
+                    ]
+                );
+                \Yii::$app->urlManager->forceHostInUrl = false;
+                $event->redirectCode = 302;
+            }
         }
 
     }
