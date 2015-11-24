@@ -57,6 +57,7 @@ class UrlManager extends BaseUrlManager
 
     public $requestEvents = [
         'DevGroup\Multilingual\LanguageEvents\GettingLanguageByUrl',
+        'DevGroup\Multilingual\LanguageEvents\GettingLanguageByCookie',
         'DevGroup\Multilingual\LanguageEvents\GettingLanguageByGeo',
         'DevGroup\Multilingual\LanguageEvents\GettingLanguageByUserInformation',
     ];
@@ -198,6 +199,8 @@ class UrlManager extends BaseUrlManager
             Yii::$app->response->redirect($event->redirectUrl, $event->redirectCode, false);
             Yii::$app->end();
         }
+
+        $request->setPathInfo(implode('/', $path));
         return parent::parseRequest($request);
     }
 }
