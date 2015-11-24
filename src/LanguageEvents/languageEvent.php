@@ -7,6 +7,7 @@ use yii\base\Event;
 
 class languageEvent extends Event
 {
+    public $needRedirect = false;
     public $redirectUrl = false;
     public $redirectCode = 301;
     public $domain;
@@ -15,4 +16,5 @@ class languageEvent extends Event
     /** @var Multilingual */
     public $multilingual;
     public $languages = [];
+    public $resultMethod = null;
 }

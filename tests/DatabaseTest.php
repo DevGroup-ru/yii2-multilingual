@@ -17,6 +17,7 @@ use yii\base\ExitException;
 use yii\helpers\Url;
 use yii\web\Application;
 use yii\db\Connection;
+use yii\web\Cookie;
 use yii\web\ServerErrorHttpException;
 
 /**
@@ -153,6 +154,7 @@ class DatabaseTest extends \PHPUnit_Extensions_Database_TestCase
         $_SERVER['REQUEST_URI'] = '/';
         try {
             $this->resolve();
+            $this->assertArraySubset(['location' => ['http://example.ru/']], Yii::$app->response->headers->toArray());
         } catch (ExitException $e) {
             $this->assertArraySubset(['location' => ['http://example.ru/']], Yii::$app->response->headers->toArray());
             $this->assertEquals(302, Yii::$app->response->statusCode);
@@ -172,6 +174,7 @@ class DatabaseTest extends \PHPUnit_Extensions_Database_TestCase
         $_SERVER['REQUEST_URI'] = '/';
         try {
             $this->resolve();
+            $this->assertEquals(302, Yii::$app->response->statusCode);
         } catch (ExitException $e) {
             $this->assertArraySubset(['location' => ['http://example.ru/']], Yii::$app->response->headers->toArray());
             $this->assertEquals(302, Yii::$app->response->statusCode);
@@ -207,6 +210,7 @@ class DatabaseTest extends \PHPUnit_Extensions_Database_TestCase
         $_SERVER['REQUEST_URI'] = '/en';
         try {
             $this->resolve();
+            $this->assertEquals(301, Yii::$app->response->statusCode);
         } catch (ExitException $e) {
             $this->assertArraySubset(['location' => ['http://example.com/en/']],
                 Yii::$app->response->headers->toArray());
@@ -215,6 +219,33 @@ class DatabaseTest extends \PHPUnit_Extensions_Database_TestCase
             $this->assertEquals(1, $multilingual->language_id);
         }
     }
+
+    public function testParseByUser()
+    {
+        $multilingual = Yii::$app->multilingual;
+        $_SERVER['HTTP_CLIENT_IP'] = '117.104.133.167'; //jp
+        $_SERVER['SERVER_NAME'] = 'unknown.host';
+        $_SERVER['HTTP_ACCEPT_LANGUAGE'] = 'ru-RU,ru;q=0.8,en-US;q=0.6,en;q=0.4';
+        try {
+            $this->resolve();
+            $this->assertEquals(2, $multilingual->language_id);
+        } catch (ExitException $e) {
+            $this->assertEquals(2, $multilingual->language_id);
+        }
+        
+        $_SERVER['HTTP_CLIENT_IP'] = '117.104.133.167'; //jp
+        $_SERVER['SERVER_NAME'] = 'unknown.host';
+        $_SERVER['HTTP_ACCEPT_LANGUAGE'] = 'en-US,ru;q=0.8,ru-RU;q=0.6,en;q=0.4';
+        try {
+            $this->resolve();
+            $this->assertEquals(1, $multilingual->language_id);
+        } catch (ExitException $e) {
+            $this->assertEquals(1, $multilingual->language_id);
+        }
+
+    }
+
+    
 
     public function testCreateUrl()
     {

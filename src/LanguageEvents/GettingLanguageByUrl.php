@@ -6,11 +6,8 @@ use DevGroup\Multilingual\models\Language;
 class GettingLanguageByUrl implements GettingLanguage, AfterGettingLanguage
 {
 
-    protected static $redirectFlag = false;
-
     public static function gettingLanguage(languageEvent $event)
     {
-        self::$redirectFlag = false;
         if ($event->currentLanguageId === false) {
             $path = explode('/', \Yii::$app->request->pathInfo);
             $folder = array_shift($path);
@@ -26,10 +23,14 @@ class GettingLanguageByUrl implements GettingLanguage, AfterGettingLanguage
                 }
                 if ($matchedDomain && $matchedFolder) {
                     $event->currentLanguageId = $language->id;
+                    if (!empty($language->folder) && $language->folder === $event->request->pathInfo) {
+                        $event->needRedirect = true;
+                    }
+                    $event->resultMethod = self::class;
                     return;
                 }
             }
-            self::$redirectFlag = true;
+            $event->needRedirect = true;
         }
     }
 
@@ -37,8 +38,7 @@ class GettingLanguageByUrl implements GettingLanguage, AfterGettingLanguage
     {
 
         $languageMatched = $event->languages[$event->multilingual->language_id];
-
-        if (self::$redirectFlag === true && $languageMatched->folder) {
+        if ($event->needRedirect === true && $languageMatched->folder) {
             if ($languageMatched->folder === $event->request->pathInfo) {
                 $event->redirectUrl = '/' . $event->request->pathInfo . '/';
                 $event->redirectCode = 301;
@@ -55,6 +55,19 @@ class GettingLanguageByUrl implements GettingLanguage, AfterGettingLanguage
                 $event->redirectCode = 302;
             }
         }
+
+        if (!empty($languageMatched->domain) && $languageMatched->domain !== $event->domain) {
+            // no matched language and not in excluded routes - should redirect to user's regional domain with 302
+            \Yii::$app->urlManager->forceHostInUrl = true;
+            $event->redirectUrl = $event->sender->createUrl(
+                [
+                    $event->request->pathInfo,
+                    'language_id' => $event->multilingual->language_id
+                ]
+            );
+            $event->redirectCode = 302;
+        }
+
 
     }
 

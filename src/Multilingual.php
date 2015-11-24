@@ -18,8 +18,6 @@ class Multilingual extends Component implements BootstrapInterface
     /** @var bool Use X-Forwarded-For for ip detection */
     public $useXForwardedFor = false;
 
-    /** @var bool Detecting language automatically */
-    public $usePreferredLanguage = false;
 
     /** @var bool Use CLIENT_IP header for ip detection */
     public $useClientIp = false;

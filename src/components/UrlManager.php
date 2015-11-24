@@ -173,11 +173,12 @@ class UrlManager extends BaseUrlManager
             $event->currentLanguageId :
             $multilingual->default_language_id;
 
-        Yii::$app->language = $event->languages[$multilingual->language_id]->yii_language;
+        /** @var bool|Language $languageMatched */
+        $languageMatched = $event->languages[$multilingual->language_id];
+
+        Yii::$app->language = $languageMatched->yii_language;
         $path = explode('/', $request->pathInfo);
         $folder = array_shift($path);
-
-        /** @var bool|Language $languageMatched */
 
         if (is_array($this->excludeRoutes)) {
             $resolved = parent::parseRequest($request);
@@ -199,8 +200,10 @@ class UrlManager extends BaseUrlManager
             Yii::$app->response->redirect($event->redirectUrl, $event->redirectCode, false);
             Yii::$app->end();
         }
+        if (!empty($languageMatched->folder)) {
+            $request->setPathInfo(implode('/', $path));
+        }
 
-        $request->setPathInfo(implode('/', $path));
         return parent::parseRequest($request);
     }
 }

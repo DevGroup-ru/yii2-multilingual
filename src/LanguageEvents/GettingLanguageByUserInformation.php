@@ -17,6 +17,7 @@ class GettingLanguageByUserInformation implements GettingLanguage
             );
             if ($lang_name = \Yii::$app->request->getPreferredLanguage(array_keys($languages))) {
                 $event->currentLanguageId = $languages[$lang_name];
+                $event->resultMethod = self::class;
             }
         }
     }

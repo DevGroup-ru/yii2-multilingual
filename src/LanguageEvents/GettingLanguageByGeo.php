@@ -7,6 +7,7 @@ class GettingLanguageByGeo implements GettingLanguage
     {
         if ($event->currentLanguageId === false && $event->multilingual->geo_default_language_forced === false) {
             $event->currentLanguageId = $event->multilingual->language_id_geo;
+            $event->resultMethod = self::class;
         }
     }
 
