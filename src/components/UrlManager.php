@@ -15,6 +15,7 @@ class UrlManager extends BaseUrlManager
 
     const GET_LANGUAGE = 'get_language';
     const AFTER_GET_LANGUAGE = 'after_get_language';
+    const GET_PREFERRED_LANGUAGE = 'get_preferred_language';
 
     public $cache = 'cache';
 
@@ -54,13 +55,6 @@ class UrlManager extends BaseUrlManager
     {
         return Yii::$app->get($this->cache);
     }
-
-    public $requestEvents = [
-        'DevGroup\Multilingual\LanguageEvents\GettingLanguageByUrl',
-        'DevGroup\Multilingual\LanguageEvents\GettingLanguageByCookie',
-        'DevGroup\Multilingual\LanguageEvents\GettingLanguageByGeo',
-        'DevGroup\Multilingual\LanguageEvents\GettingLanguageByUserInformation',
-    ];
 
     /**
      * @inheritdoc
@@ -147,19 +141,7 @@ class UrlManager extends BaseUrlManager
     {
         /** @var \DevGroup\Multilingual\Multilingual $multilingual */
         $multilingual = Yii::$app->multilingual;
-        foreach ($this->requestEvents as $filter) {
-            if (is_subclass_of($filter, GettingLanguage::class)) {
-                $this->on(self::GET_LANGUAGE, [$filter, 'gettingLanguage']);
-            }
-            if (is_subclass_of($filter, AfterGettingLanguage::class)) {
-                $this->on(self::AFTER_GET_LANGUAGE, [$filter, 'afterGettingLanguage']);
-            }
-        }
-        $event = new languageEvent();
-        $event->multilingual = $multilingual;
-        $event->domain = $this->requestedDomain();
-        $event->request = $request;
-        $event->languages = array_reduce(
+        $languages = array_reduce(
             Language::find()->all(),
             function ($arr, $i) {
                 $arr[$i->id] = $i;
@@ -167,14 +149,33 @@ class UrlManager extends BaseUrlManager
             },
             []
         );
-        $this->trigger(self::GET_LANGUAGE, $event);
 
-        $multilingual->language_id = $event->currentLanguageId ?
-            $event->currentLanguageId :
+        foreach ($multilingual->requestedLanguageEvents as $filter) {
+            if (is_subclass_of($filter, GettingLanguage::class)) {
+                $this->on(self::GET_LANGUAGE, [$filter, 'gettingLanguage']);
+            }
+            if (is_subclass_of($filter, AfterGettingLanguage::class)) {
+                $this->on(self::AFTER_GET_LANGUAGE, [$filter, 'afterGettingLanguage']);
+            }
+        }
+        foreach ($multilingual->preferredLanguageEvents as $filter) {
+            if (is_subclass_of($filter, GettingLanguage::class)) {
+                $this->on(self::GET_PREFERRED_LANGUAGE, [$filter, 'gettingLanguage']);
+            }
+        }
+        $eventRequestedLanguage = new languageEvent();
+        $eventRequestedLanguage->multilingual = $multilingual;
+        $eventRequestedLanguage->domain = $this->requestedDomain();
+        $eventRequestedLanguage->request = $request;
+        $eventRequestedLanguage->languages = $languages;
+        $this->trigger(self::GET_LANGUAGE, $eventRequestedLanguage);
+
+        $multilingual->language_id = $eventRequestedLanguage->currentLanguageId ?
+            $eventRequestedLanguage->currentLanguageId :
             $multilingual->default_language_id;
 
         /** @var bool|Language $languageMatched */
-        $languageMatched = $event->languages[$multilingual->language_id];
+        $languageMatched = $languages[$multilingual->language_id];
 
         Yii::$app->language = $languageMatched->yii_language;
         $path = explode('/', $request->pathInfo);
@@ -194,12 +195,39 @@ class UrlManager extends BaseUrlManager
             }
         }
 
-        $this->trigger(self::AFTER_GET_LANGUAGE, $event);
+        $eventPreferredLanguage = new languageEvent();
+        $eventPreferredLanguage->multilingual = $multilingual;
+        $eventPreferredLanguage->domain = $this->requestedDomain();
+        $eventPreferredLanguage->request = $request;
+        $eventPreferredLanguage->languages = $languages;
 
-        if ($event->redirectUrl !== false && $event->redirectCode !== false) {
-            Yii::$app->response->redirect($event->redirectUrl, $event->redirectCode, false);
+
+        $this->trigger(self::GET_PREFERRED_LANGUAGE, $eventPreferredLanguage);
+        $multilingual->preferred_language_id = $eventPreferredLanguage->currentLanguageId ?
+            $eventPreferredLanguage->currentLanguageId :
+            $eventRequestedLanguage->currentLanguageId;
+
+        $this->trigger(self::AFTER_GET_LANGUAGE, $eventRequestedLanguage);
+
+        if (in_array(
+                $eventRequestedLanguage->resultClass,
+                $multilingual->needConfirmationEvents
+            ) ||
+            $eventRequestedLanguage->resultClass === null
+        ) {
+            $multilingual->flagNeedConfirmation = true;
+        }
+
+        if ($eventRequestedLanguage->redirectUrl !== false && $eventRequestedLanguage->redirectCode !== false) {
+            Yii::$app->response->redirect(
+                $eventRequestedLanguage->redirectUrl,
+                $eventRequestedLanguage->redirectCode,
+                false
+            );
             Yii::$app->end();
         }
+
+
         if (!empty($languageMatched->folder)) {
             $request->setPathInfo(implode('/', $path));
         }

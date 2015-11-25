@@ -33,8 +33,11 @@ class Multilingual extends Component implements BootstrapInterface
     /** @var null|integer User language ID determined by ip-geo information */
     public $language_id_geo = null;
 
-    /** @var null|int User language ID determined by URL */
+    /** @var null|int User language ID determined by requested Language Events */
     public $language_id = null;
+
+    /** @var null|int User language ID determined by preferred Language Events */
+    public $preferred_language_id = null;
 
     /** @var null|int Language ID from his cookie */
     public $cookie_language_id = null;
@@ -74,6 +77,25 @@ class Multilingual extends Component implements BootstrapInterface
         ]
     ];
 
+    public $flagNeedConfirmation = false;
+
+    public $needConfirmationEvents = [
+        'DevGroup\Multilingual\LanguageEvents\GettingLanguageByGeo',
+        'DevGroup\Multilingual\LanguageEvents\GettingLanguageByUserInformation',
+    ];
+    public $requestedLanguageEvents = [
+        'DevGroup\Multilingual\LanguageEvents\GettingLanguageByUrl',
+        'DevGroup\Multilingual\LanguageEvents\GettingLanguageByCookie',
+        'DevGroup\Multilingual\LanguageEvents\GettingLanguageByGeo',
+        'DevGroup\Multilingual\LanguageEvents\GettingLanguageByUserInformation',
+    ];
+
+    public $preferredLanguageEvents = [
+        'DevGroup\Multilingual\LanguageEvents\GettingLanguageByCookie',
+        'DevGroup\Multilingual\LanguageEvents\GettingLanguageByUserInformation',
+        'DevGroup\Multilingual\LanguageEvents\GettingLanguageByGeo',
+        'DevGroup\Multilingual\LanguageEvents\GettingLanguageByUrl',
+    ];
 
     /**
      * Initializes the component
@@ -179,29 +201,41 @@ class Multilingual extends Component implements BootstrapInterface
      */
     public function retrieveLanguageFromGeo()
     {
+        if (!$this->language_id_geo = $this->getLanguageFromGeo()) {
+            $this->geo_default_language_forced = true;
+            $this->language_id_geo = $this->default_language_id;
+        }
+
+    }
+
+    public function getLanguageFromGeo()
+    {
         // ok we have at least geo object, try to find language for it
-        if ($this->geo instanceof GeoInfo) {
-            $country = $this->geo->country;
-            $searchOrder = [
-                'iso_3166_1_alpha_2',
-                'iso_3166_1_alpha_3',
-                'name',
-            ];
-            foreach ($searchOrder as $attribute) {
-                if (isset($country->$attribute)) {
-                    $model = CountryLanguage::find()
-                        ->where([$attribute => $country->$attribute])
-                        ->one();
-                    if ($model !== null) {
-                        $this->language_id_geo = $model->language_id;
-                        return;
+
+        if ($this->language_id_geo === null) {
+            if ($this->geo instanceof GeoInfo) {
+                $country = $this->geo->country;
+                $searchOrder = [
+                    'iso_3166_1_alpha_2',
+                    'iso_3166_1_alpha_3',
+                    'name',
+                ];
+                foreach ($searchOrder as $attribute) {
+                    if (isset($country->$attribute)) {
+                        $model = CountryLanguage::find()
+                            ->where([$attribute => $country->$attribute])
+                            ->one();
+                        if ($model !== null) {
+                            $this->language_id_geo = $model->language_id;
+                            break;
+                        }
                     }
                 }
             }
         }
-        $this->geo_default_language_forced = true;
-        $this->language_id_geo = $this->default_language_id;
+        return $this->language_id_geo;
     }
+
 
     /**
      * Retrieves language form cookie

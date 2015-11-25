@@ -16,5 +16,5 @@ class languageEvent extends Event
     /** @var Multilingual */
     public $multilingual;
     public $languages = [];
-    public $resultMethod = null;
+    public $resultClass = null;
 }

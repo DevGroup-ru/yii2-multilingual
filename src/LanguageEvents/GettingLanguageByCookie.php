@@ -16,7 +16,7 @@ class GettingLanguageByCookie implements GettingLanguage, AfterGettingLanguage
             ) {
                 $event->currentLanguageId = \Yii::$app->request->cookies->get('language_id')->value;
                 $event->multilingual->cookie_language_id = $event->currentLanguageId;
-                $event->resultMethod = self::class;
+                $event->resultClass = self::class;
             }
         }
     }

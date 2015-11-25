@@ -26,7 +26,7 @@ class GettingLanguageByUrl implements GettingLanguage, AfterGettingLanguage
                     if (!empty($language->folder) && $language->folder === $event->request->pathInfo) {
                         $event->needRedirect = true;
                     }
-                    $event->resultMethod = self::class;
+                    $event->resultClass = self::class;
                     return;
                 }
             }

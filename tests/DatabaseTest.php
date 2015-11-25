@@ -232,7 +232,7 @@ class DatabaseTest extends \PHPUnit_Extensions_Database_TestCase
         } catch (ExitException $e) {
             $this->assertEquals(2, $multilingual->language_id);
         }
-        
+
         $_SERVER['HTTP_CLIENT_IP'] = '117.104.133.167'; //jp
         $_SERVER['SERVER_NAME'] = 'unknown.host';
         $_SERVER['HTTP_ACCEPT_LANGUAGE'] = 'en-US,ru;q=0.8,ru-RU;q=0.6,en;q=0.4';
@@ -245,7 +245,50 @@ class DatabaseTest extends \PHPUnit_Extensions_Database_TestCase
 
     }
 
-    
+    public function testNeedConfirmation()
+    {
+        /** @var \DevGroup\Multilingual\Multilingual $multilingual */
+        $multilingual = Yii::$app->multilingual;
+
+
+        $_SERVER['SERVER_NAME'] = 'example.com';
+        $_SERVER['REQUEST_URI'] = '/en/';
+
+        try {
+            $this->resolve();
+            $this->assertFalse($multilingual->flagNeedConfirmation);
+        } catch (ExitException $e) {
+            $this->assertFalse($multilingual->flagNeedConfirmation);
+        }
+
+        $_SERVER['HTTP_CLIENT_IP'] = '117.104.133.167'; //jp
+        $_SERVER['SERVER_NAME'] = 'unknown.host';
+        $_SERVER['HTTP_ACCEPT_LANGUAGE'] = 'ru-RU,ru;q=0.8,en-US;q=0.6,en;q=0.4';
+        try {
+            $this->resolve();
+            $this->assertTrue($multilingual->flagNeedConfirmation);
+        } catch (ExitException $e) {
+            $this->assertTrue($multilingual->flagNeedConfirmation);
+        }
+
+    }
+
+    public function testNeedPreferredLanguage()
+    {
+        /** @var \DevGroup\Multilingual\Multilingual $multilingual */
+        $multilingual = Yii::$app->multilingual;
+        $_SERVER['SERVER_NAME'] = 'example.com';
+        $_SERVER['REQUEST_URI'] = '/en/';
+        $_SERVER['HTTP_ACCEPT_LANGUAGE'] = 'ru-RU,ru;q=0.8,en-US;q=0.6,en;q=0.4';
+
+        $this->resolve();
+
+        $this->assertEquals(1, $multilingual->language_id);
+        $this->assertEquals(2, $multilingual->preferred_language_id);
+
+
+    }
+
 
     public function testCreateUrl()
     {
