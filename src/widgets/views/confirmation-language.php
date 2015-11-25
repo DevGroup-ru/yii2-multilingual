@@ -13,13 +13,13 @@ use yii\helpers\Html;
 
 $modal = Modal::begin([
     'header' => Html::tag('h4', Multilingual::t('widget', 'Please, confirm language')),
+    'toggleButton' => ['label' => 'click me'],
 ]); ?>
 
     <p>
-        <?= Multilingual::t('widget', 'Your language is "{name}". Please, confirm language or select other:',
+        <?= Multilingual::t('widget', 'Your language is "{name}". Please, confirm or select another language:',
             ['name' => $languages[$currentLanguageId]->name]) ?>
     </p>
-
     <ul>
         <?php foreach ($languages as $language) : ?>
             <?php if ($language->id !== $currentLanguageId): ?>
@@ -32,11 +32,6 @@ $modal = Modal::begin([
         <?php endforeach;
         ?>
     </ul>
-
 <?php Modal::end(); ?>
-
-
 <?php
-$this->registerJs("  $(window).load(function(){
-                $('#" . $modal->getId() . "').modal('show');
-            });");
+$this->registerJs("$('#" . $modal->getId() . "').modal('show');");

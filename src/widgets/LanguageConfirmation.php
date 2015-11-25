@@ -4,7 +4,7 @@ namespace DevGroup\Multilingual\widgets;
 
 use yii\base\Widget;
 
-class ConfirmationLanguage extends Widget
+class LanguageConfirmation extends Widget
 {
 
     public function run()

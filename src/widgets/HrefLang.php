@@ -31,7 +31,7 @@ class HrefLang extends Widget
         /** @var \DevGroup\Multilingual\Multilingual $multilingual */
         $multilingual = Yii::$app->get('multilingual');
         /** @var Language[] $languages */
-        $languages = Language::find()->all();
+        $languages = $multilingual->getAllLanguages();
 
         $result = '';
 

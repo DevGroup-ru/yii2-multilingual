@@ -77,20 +77,31 @@ class Multilingual extends Component implements BootstrapInterface
         ]
     ];
 
+    /**
+     * @var bool needs Confirmation requested language?
+     */
     public $needsConfirmation = false;
 
+    /**
+     * @var array array of confirmation Events
+     */
     public $needConfirmationEvents = [
         'DevGroup\Multilingual\LanguageEvents\GettingLanguageByCookie',
         'DevGroup\Multilingual\LanguageEvents\GettingLanguageByGeo',
         'DevGroup\Multilingual\LanguageEvents\GettingLanguageByUserInformation',
     ];
+    /**
+     * @var array array of requested language Events
+     */
     public $requestedLanguageEvents = [
         'DevGroup\Multilingual\LanguageEvents\GettingLanguageByUrl',
         'DevGroup\Multilingual\LanguageEvents\GettingLanguageByCookie',
         'DevGroup\Multilingual\LanguageEvents\GettingLanguageByGeo',
         'DevGroup\Multilingual\LanguageEvents\GettingLanguageByUserInformation',
     ];
-
+    /**
+     * @var array array of preferred language Events
+     */
     public $preferredLanguageEvents = [
         'DevGroup\Multilingual\LanguageEvents\GettingLanguageByCookie',
         'DevGroup\Multilingual\LanguageEvents\GettingLanguageByUserInformation',
@@ -144,6 +155,9 @@ class Multilingual extends Component implements BootstrapInterface
 
     }
 
+    /**
+     * Add custom translations source
+     */
     public function registerTranslations()
     {
         Yii::$app->i18n->translations['@vendor/devgroup/yii2-multilingual/*'] = [
@@ -156,7 +170,9 @@ class Multilingual extends Component implements BootstrapInterface
 
         ];
     }
-
+    /**
+     * Add custom translations method
+     */
     public static function t($category, $message, $params = [], $language = null)
     {
         return Yii::t('@vendor/devgroup/yii2-multilingual/' . $category, $message, $params, $language);
