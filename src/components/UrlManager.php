@@ -141,14 +141,7 @@ class UrlManager extends BaseUrlManager
     {
         /** @var \DevGroup\Multilingual\Multilingual $multilingual */
         $multilingual = Yii::$app->multilingual;
-        $languages = array_reduce(
-            Language::find()->all(),
-            function ($arr, $i) {
-                $arr[$i->id] = $i;
-                return $arr;
-            },
-            []
-        );
+        $languages = $multilingual->getAllLanguages();
 
         foreach ($multilingual->requestedLanguageEvents as $filter) {
             if (is_subclass_of($filter, GettingLanguage::class)) {
@@ -213,12 +206,16 @@ class UrlManager extends BaseUrlManager
                 $eventRequestedLanguage->resultClass,
                 $multilingual->needConfirmationEvents
             ) ||
-            $eventRequestedLanguage->resultClass === null
+            $eventRequestedLanguage->resultClass === null ||
+            Yii::$app->session->getFlash('needsConfirmation', false)
         ) {
             $multilingual->needsConfirmation = true;
         }
 
         if ($eventRequestedLanguage->redirectUrl !== false && $eventRequestedLanguage->redirectCode !== false) {
+            if ($multilingual->needsConfirmation) {
+                Yii::$app->session->setFlash('needsConfirmation', true);
+            }
             Yii::$app->response->redirect(
                 $eventRequestedLanguage->redirectUrl,
                 $eventRequestedLanguage->redirectCode,

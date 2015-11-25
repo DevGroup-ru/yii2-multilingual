@@ -15,24 +15,20 @@ class LanguageSelector extends Widget
 
     public function run()
     {
-        $languages = Language::find()
-            ->indexBy('id')
-            ->all();
         /** @var \DevGroup\Multilingual\Multilingual $multilingual */
         $multilingual = Yii::$app->get('multilingual');
         $currentLanguageId = $multilingual->language_id;
 
         if (empty($this->blockId)) {
-            $this->blockId = 'language-selector-'.$this->getId();
+            $this->blockId = 'language-selector-' . $this->getId();
         }
 
         return $this->render(
             $this->viewFile,
             [
-                'languages' => $languages,
+                'languages' => $multilingual->getAllLanguages(),
                 'currentLanguageId' => $currentLanguageId,
                 'multilingual' => $multilingual,
-
                 'blockId' => $this->blockId,
                 'blockClass' => $this->blockClass,
             ]

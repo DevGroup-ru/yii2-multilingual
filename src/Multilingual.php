@@ -80,6 +80,7 @@ class Multilingual extends Component implements BootstrapInterface
     public $needsConfirmation = false;
 
     public $needConfirmationEvents = [
+        'DevGroup\Multilingual\LanguageEvents\GettingLanguageByCookie',
         'DevGroup\Multilingual\LanguageEvents\GettingLanguageByGeo',
         'DevGroup\Multilingual\LanguageEvents\GettingLanguageByUserInformation',
     ];
@@ -97,6 +98,9 @@ class Multilingual extends Component implements BootstrapInterface
         'DevGroup\Multilingual\LanguageEvents\GettingLanguageByUrl',
     ];
 
+
+    protected $_languages = [];
+
     /**
      * Initializes the component
      */
@@ -105,6 +109,22 @@ class Multilingual extends Component implements BootstrapInterface
         parent::init();
         $this->language_id = $this->default_language_id;
     }
+
+    public function getAllLanguages()
+    {
+        if ($this->_languages === []) {
+            $this->_languages = array_reduce(
+                Language::find()->all(),
+                function ($arr, $i) {
+                    $arr[$i->id] = $i;
+                    return $arr;
+                },
+                []
+            );
+        }
+        return $this->_languages;
+    }
+
 
     /**
      * Bootstrap method to be called during application bootstrap stage.
@@ -120,7 +140,26 @@ class Multilingual extends Component implements BootstrapInterface
         $app->on(Application::EVENT_BEFORE_ACTION, function () {
             $this->retrieveCookieLanguage();
         });
+        $this->registerTranslations();
 
+    }
+
+    public function registerTranslations()
+    {
+        Yii::$app->i18n->translations['@vendor/devgroup/yii2-multilingual/*'] = [
+            'class' => 'yii\i18n\PhpMessageSource',
+            'sourceLanguage' => 'en-US',
+            'basePath' => '@vendor/devgroup/yii2-multilingual/src/translations',
+            'fileMap' => [
+                '@vendor/devgroup/yii2-multilingual/widget' => 'widget.php',
+            ],
+
+        ];
+    }
+
+    public static function t($category, $message, $params = [], $language = null)
+    {
+        return Yii::t('@vendor/devgroup/yii2-multilingual/' . $category, $message, $params, $language);
     }
 
     /**
