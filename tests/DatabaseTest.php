@@ -152,14 +152,17 @@ class DatabaseTest extends \PHPUnit_Extensions_Database_TestCase
         // test redirect from unknown host to geo-based
         $_SERVER['SERVER_NAME'] = 'unknown.host';
         $_SERVER['REQUEST_URI'] = '/';
+        $needsException = true;
         try {
             $this->resolve();
-            $this->assertArraySubset(['location' => ['http://example.ru/']], Yii::$app->response->headers->toArray());
+            $needsException = false;
         } catch (ExitException $e) {
             $this->assertArraySubset(['location' => ['http://example.ru/']], Yii::$app->response->headers->toArray());
             $this->assertEquals(302, Yii::$app->response->statusCode);
             $this->assertEquals(2, $multilingual->language_id_geo);
         }
+        $this->assertTrue($needsException);
+
 
         // test good domain
         $_SERVER['SERVER_NAME'] = 'example.ru';
@@ -172,28 +175,30 @@ class DatabaseTest extends \PHPUnit_Extensions_Database_TestCase
         // geo = ru, domain != ru
         $_SERVER['SERVER_NAME'] = 'example.com';
         $_SERVER['REQUEST_URI'] = '/';
+        $needsException = true;
         try {
             $this->resolve();
-            $this->assertEquals(302, Yii::$app->response->statusCode);
+            $needsException = false;
         } catch (ExitException $e) {
             $this->assertArraySubset(['location' => ['http://example.ru/']], Yii::$app->response->headers->toArray());
             $this->assertEquals(302, Yii::$app->response->statusCode);
             $this->assertEquals(2, $multilingual->language_id_geo);
             $this->assertEquals(2, $multilingual->language_id);
         }
+        $this->assertTrue($needsException);
 
         // geo = ru, domain != ru, proper eng folder
         $_SERVER['SERVER_NAME'] = 'example.com';
         $_SERVER['REQUEST_URI'] = '/en/';
 
-        try {
-            $this->resolve();
-        } catch (ExitException $e) {
-            // geo = ru
-            $this->assertEquals(2, $multilingual->language_id_geo);
-            // url requested geo = en
-            $this->assertEquals(1, $multilingual->language_id);
-        }
+        $this->resolve();
+
+        // geo = ru
+        $this->assertEquals(2, $multilingual->language_id_geo);
+        // url requested geo = en
+        $this->assertEquals(1, $multilingual->language_id);
+
+
         // geo = ru, domain != ru, proper eng folder and some url
         $_SERVER['SERVER_NAME'] = 'example.com';
         $_SERVER['REQUEST_URI'] = '/en/url/to?something=yes';
@@ -208,9 +213,10 @@ class DatabaseTest extends \PHPUnit_Extensions_Database_TestCase
         // geo=ru, domain != ru, proper eng folder but without leading slash - should redirect
         $_SERVER['SERVER_NAME'] = 'example.com';
         $_SERVER['REQUEST_URI'] = '/en';
+        $needsException = true;
         try {
             $this->resolve();
-            $this->assertEquals(301, Yii::$app->response->statusCode);
+            $needsException = false;
         } catch (ExitException $e) {
             $this->assertArraySubset(['location' => ['http://example.com/en/']],
                 Yii::$app->response->headers->toArray());
@@ -218,6 +224,29 @@ class DatabaseTest extends \PHPUnit_Extensions_Database_TestCase
             $this->assertEquals(2, $multilingual->language_id_geo);
             $this->assertEquals(1, $multilingual->language_id);
         }
+        $this->assertTrue($needsException);
+    }
+
+    public function testParseByCookie()
+    {
+        $multilingual = Yii::$app->multilingual;
+
+        $_COOKIE['language_id'] = Yii::$app->getSecurity()->hashData(
+            serialize(['language_id', 2]),
+            Yii::$app->request->cookieValidationKey
+        );
+        // geo = ru, domain != ru, proper eng folder
+        $_SERVER['SERVER_NAME'] = 'unknown.host';
+        $_SERVER['REQUEST_URI'] = '/';
+        $needsException = true;
+        try {
+            $this->resolve();
+            $needsException = false;
+        } catch (ExitException $e) {
+            $this->assertEquals(302, Yii::$app->response->statusCode);
+            $this->assertEquals(2, $multilingual->language_id);
+        }
+        $this->assertTrue($needsException);
     }
 
     public function testParseByUser()
@@ -226,22 +255,26 @@ class DatabaseTest extends \PHPUnit_Extensions_Database_TestCase
         $_SERVER['HTTP_CLIENT_IP'] = '117.104.133.167'; //jp
         $_SERVER['SERVER_NAME'] = 'unknown.host';
         $_SERVER['HTTP_ACCEPT_LANGUAGE'] = 'ru-RU,ru;q=0.8,en-US;q=0.6,en;q=0.4';
+        $needsException = true;
         try {
             $this->resolve();
-            $this->assertEquals(2, $multilingual->language_id);
+            $needsException = false;
         } catch (ExitException $e) {
             $this->assertEquals(2, $multilingual->language_id);
         }
+        $this->assertTrue($needsException);
 
         $_SERVER['HTTP_CLIENT_IP'] = '117.104.133.167'; //jp
         $_SERVER['SERVER_NAME'] = 'unknown.host';
         $_SERVER['HTTP_ACCEPT_LANGUAGE'] = 'en-US,ru;q=0.8,ru-RU;q=0.6,en;q=0.4';
+        $needsException = true;
         try {
             $this->resolve();
-            $this->assertEquals(1, $multilingual->language_id);
+            $needsException = false;
         } catch (ExitException $e) {
             $this->assertEquals(1, $multilingual->language_id);
         }
+        $this->assertTrue($needsException);
 
     }
 
@@ -253,24 +286,19 @@ class DatabaseTest extends \PHPUnit_Extensions_Database_TestCase
 
         $_SERVER['SERVER_NAME'] = 'example.com';
         $_SERVER['REQUEST_URI'] = '/en/';
-
-        try {
-            $this->resolve();
-            $this->assertFalse($multilingual->flagNeedConfirmation);
-        } catch (ExitException $e) {
-            $this->assertFalse($multilingual->flagNeedConfirmation);
-        }
+        $this->assertFalse($multilingual->needsConfirmation);
 
         $_SERVER['HTTP_CLIENT_IP'] = '117.104.133.167'; //jp
         $_SERVER['SERVER_NAME'] = 'unknown.host';
         $_SERVER['HTTP_ACCEPT_LANGUAGE'] = 'ru-RU,ru;q=0.8,en-US;q=0.6,en;q=0.4';
+        $needsException = true;
         try {
             $this->resolve();
-            $this->assertTrue($multilingual->flagNeedConfirmation);
+            $needsException = false;
         } catch (ExitException $e) {
-            $this->assertTrue($multilingual->flagNeedConfirmation);
+            $this->assertTrue($multilingual->needsConfirmation);
         }
-
+        $this->assertTrue($needsException);
     }
 
     public function testNeedPreferredLanguage()

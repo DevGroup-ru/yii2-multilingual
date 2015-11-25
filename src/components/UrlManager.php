@@ -4,7 +4,7 @@ namespace DevGroup\Multilingual\components;
 
 use DevGroup\Multilingual\LanguageEvents\AfterGettingLanguage;
 use DevGroup\Multilingual\LanguageEvents\GettingLanguage;
-use DevGroup\Multilingual\LanguageEvents\languageEvent;
+use DevGroup\Multilingual\LanguageEvents\LanguageEvent;
 use DevGroup\Multilingual\models\Language;
 use Yii;
 use yii\web\ServerErrorHttpException;
@@ -163,7 +163,7 @@ class UrlManager extends BaseUrlManager
                 $this->on(self::GET_PREFERRED_LANGUAGE, [$filter, 'gettingLanguage']);
             }
         }
-        $eventRequestedLanguage = new languageEvent();
+        $eventRequestedLanguage = new LanguageEvent();
         $eventRequestedLanguage->multilingual = $multilingual;
         $eventRequestedLanguage->domain = $this->requestedDomain();
         $eventRequestedLanguage->request = $request;
@@ -195,7 +195,7 @@ class UrlManager extends BaseUrlManager
             }
         }
 
-        $eventPreferredLanguage = new languageEvent();
+        $eventPreferredLanguage = new LanguageEvent();
         $eventPreferredLanguage->multilingual = $multilingual;
         $eventPreferredLanguage->domain = $this->requestedDomain();
         $eventPreferredLanguage->request = $request;
@@ -215,7 +215,7 @@ class UrlManager extends BaseUrlManager
             ) ||
             $eventRequestedLanguage->resultClass === null
         ) {
-            $multilingual->flagNeedConfirmation = true;
+            $multilingual->needsConfirmation = true;
         }
 
         if ($eventRequestedLanguage->redirectUrl !== false && $eventRequestedLanguage->redirectCode !== false) {

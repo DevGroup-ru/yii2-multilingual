@@ -7,6 +7,7 @@ class GettingLanguageByCookie implements GettingLanguage, AfterGettingLanguage
 {
     public static function gettingLanguage(languageEvent $event)
     {
+
         if ($event->currentLanguageId === false) {
             if (\Yii::$app->request->cookies->has('language_id') &&
                 in_array(

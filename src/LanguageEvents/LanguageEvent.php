@@ -5,7 +5,7 @@ namespace DevGroup\Multilingual\LanguageEvents;
 use DevGroup\Multilingual\Multilingual;
 use yii\base\Event;
 
-class languageEvent extends Event
+class LanguageEvent extends Event
 {
     public $needRedirect = false;
     public $redirectUrl = false;

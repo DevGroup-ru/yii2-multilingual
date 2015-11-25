@@ -12,32 +12,4 @@ class GettingLanguageByGeo implements GettingLanguage
         }
     }
 
-
-    public function getLanguageFromGeo()
-    {
-            // ok we have at least geo object, try to find language for it
-            if ($this->geo instanceof GeoInfo) {
-                $country = $this->geo->country;
-                $searchOrder = [
-                    'iso_3166_1_alpha_2',
-                    'iso_3166_1_alpha_3',
-                    'name',
-                ];
-                foreach ($searchOrder as $attribute) {
-                    if (isset($country->$attribute)) {
-                        $model = CountryLanguage::find()
-                            ->where([$attribute => $country->$attribute])
-                            ->one();
-                        if ($model !== null) {
-                            $this->language_id_geo = $model->language_id;
-                            return;
-                        }
-                    }
-                }
-            }
-
-
-        return $this->language_id_geo;
-    }
-
 }

@@ -77,7 +77,7 @@ class Multilingual extends Component implements BootstrapInterface
         ]
     ];
 
-    public $flagNeedConfirmation = false;
+    public $needsConfirmation = false;
 
     public $needConfirmationEvents = [
         'DevGroup\Multilingual\LanguageEvents\GettingLanguageByGeo',
