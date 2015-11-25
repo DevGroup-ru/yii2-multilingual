@@ -243,8 +243,10 @@ class DatabaseTest extends \PHPUnit_Extensions_Database_TestCase
             $this->resolve();
             $needsException = false;
         } catch (ExitException $e) {
+            $multilingual->retrieveCookieLanguage();
             $this->assertEquals(302, Yii::$app->response->statusCode);
             $this->assertEquals(2, $multilingual->language_id);
+            $this->assertEquals(2, $multilingual->cookie_language_id);
         }
         $this->assertTrue($needsException);
     }
@@ -313,8 +315,6 @@ class DatabaseTest extends \PHPUnit_Extensions_Database_TestCase
 
         $this->assertEquals(1, $multilingual->language_id);
         $this->assertEquals(2, $multilingual->preferred_language_id);
-
-
     }
 
 
