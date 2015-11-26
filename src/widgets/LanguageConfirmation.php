@@ -9,8 +9,12 @@ class LanguageConfirmation extends Widget
 
     public function run()
     {
+
+
         /** @var \DevGroup\Multilingual\Multilingual $multilingual */
         $multilingual = \Yii::$app->multilingual;
+
+
         $result = "";
         if ($multilingual->needsConfirmation) {
             $result = $this->render(

@@ -9,6 +9,7 @@ use Yii;
 use yii\base\Application;
 use yii\base\BootstrapInterface;
 use yii\base\Component;
+use yii\db\BaseActiveRecord;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Url;
 use yii\web\Cookie;
@@ -109,7 +110,16 @@ class Multilingual extends Component implements BootstrapInterface
         'DevGroup\Multilingual\LanguageEvents\GettingLanguageByUrl',
     ];
 
+    public $modelsMap = [
+        'Language' => 'DevGroup\Multilingual\models\Language',
+        'CountryLanguage' => 'DevGroup\Multilingual\models\CountryLanguage',
+        'City' => 'DevGroup\Multilingual\models\City'
+    ];
 
+
+    /**
+     * @var array languages
+     */
     protected $_languages = [];
 
     /**
@@ -124,14 +134,16 @@ class Multilingual extends Component implements BootstrapInterface
     public function getAllLanguages()
     {
         if ($this->_languages === []) {
-            $this->_languages = array_reduce(
-                Language::find()->all(),
-                function ($arr, $i) {
-                    $arr[$i->id] = $i;
-                    return $arr;
-                },
-                []
-            );
+            if (is_subclass_of($this->modelsMap['Language'], BaseActiveRecord::class)) {
+                $this->_languages = array_reduce(
+                    call_user_func([$this->modelsMap['Language'], 'find'])->all(),
+                    function ($arr, $i) {
+                        $arr[$i->id] = $i;
+                        return $arr;
+                    },
+                    []
+                );
+            }
         }
         return $this->_languages;
     }
@@ -170,6 +182,7 @@ class Multilingual extends Component implements BootstrapInterface
 
         ];
     }
+
     /**
      * Add custom translations method
      */
