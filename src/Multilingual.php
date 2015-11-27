@@ -163,7 +163,6 @@ class Multilingual extends Component implements BootstrapInterface
         $app->on(Application::EVENT_BEFORE_REQUEST, function () {
             $this->retrieveInfo();
             $this->retrieveLanguageFromGeo();
-            $this->getPreferredCity();
         });
         $app->on(Application::EVENT_BEFORE_ACTION, function () {
             $this->retrieveCookieLanguage();
@@ -374,8 +373,6 @@ class Multilingual extends Component implements BootstrapInterface
             $city_id = Yii::$app->request->get('multilingual-city-id', false);
             if ($city_id === false) {
                 $city_id = Yii::$app->request->cookies->getValue('city_id', false);
-            } else {
-                $this->cityNeedsConfirmation = false;
             }
             if ($city_id !== false) {
                 $this->_preferred_city = call_user_func(
@@ -404,6 +401,9 @@ class Multilingual extends Component implements BootstrapInterface
                     'value' => $this->_preferred_city->getId(),
                 ]));
             }
+        }
+        if ($this->_preferred_city === null) {
+            $this->cityNeedsConfirmation = true;
         }
         return $this->_preferred_city;
     }

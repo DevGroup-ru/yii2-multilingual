@@ -359,6 +359,106 @@ class DatabaseTest extends \PHPUnit_Extensions_Database_TestCase
         $urlManager->includeRoutes = [];
     }
 
+
+    public function testCityEmpty()
+    {
+        /** @var \DevGroup\Multilingual\Multilingual $multilingual */
+        $multilingual = Yii::$app->multilingual;
+        $_SERVER['SERVER_NAME'] = 'example.com';
+        $_SERVER['REQUEST_URI'] = '/en/';
+
+        $multilingual->retrieveInfo();
+        /** no Ip data */
+        $result = $multilingual->getPreferredCity();
+        $this->assertEquals(null, $result);
+        $this->assertTrue($multilingual->cityNeedsConfirmation);
+
+
+    }
+
+    public function testCityCookie()
+    {
+        /** @var \DevGroup\Multilingual\Multilingual $multilingual */
+        $multilingual = Yii::$app->multilingual;
+        /** isset cookie */
+        $_SERVER['SERVER_NAME'] = 'example.com';
+        $_SERVER['REQUEST_URI'] = '/en/';
+
+
+        Yii::$app->request->cookies->readOnly = false;
+        Yii::$app->request->cookies->add(new Cookie([
+            'name' => 'city_id',
+            'value' => 2
+        ]));
+
+        $multilingual->retrieveInfo();
+        $result = $multilingual->getPreferredCity();
+        $this->assertEquals(2, $result->getId());
+        $this->assertFalse($multilingual->cityNeedsConfirmation);
+    }
+
+    public function testCityByGeo()
+    {
+        /** @var \DevGroup\Multilingual\Multilingual $multilingual */
+        $multilingual = Yii::$app->multilingual;
+        $_SERVER['SERVER_NAME'] = 'example.com';
+        $_SERVER['REQUEST_URI'] = '/en/';
+        $multilingual->handlers[0]['default']['city'] = [
+            'iso' => null,
+            'name' => 'Tambov',
+            'lat' => 52.73169,
+            'lon' => 41.44326
+        ];
+
+        $multilingual->retrieveInfo();
+        $this->resolve();
+
+        $result = $multilingual->getPreferredCity();
+        $this->assertEquals(1, $result->getId());
+        $this->assertFalse($multilingual->cityNeedsConfirmation);
+
+
+    }
+
+    public function testCityByGeoNearest()
+    {
+        /** @var \DevGroup\Multilingual\Multilingual $multilingual */
+        $multilingual = Yii::$app->multilingual;
+        $_SERVER['SERVER_NAME'] = 'example.com';
+        $_SERVER['REQUEST_URI'] = '/en/';
+        $multilingual->handlers[0]['default']['city'] = [
+            'iso' => null,
+            'name' => 'Michurinsk',
+            'lat' => 52.8978,
+            'lon' => 40.4907
+        ];
+        $multilingual->retrieveInfo();
+        $this->resolve();
+
+        $result = $multilingual->getPreferredCity();
+        $this->assertEquals(1, $result->getId());
+        $this->assertTrue($multilingual->cityNeedsConfirmation);
+    }
+
+
+    public function testCityARModel()
+    {
+        /** @var \DevGroup\Multilingual\Multilingual $multilingual */
+        $multilingual = Yii::$app->multilingual;
+        $model = call_user_func(
+            [
+                $multilingual->modelsMap['City'],
+                'getById'
+            ],
+            2
+        );
+        $this->assertEquals('Voronezh', $model->getName());
+
+        $count = count(call_user_func([$multilingual->modelsMap['City'], 'getAll']));
+        $this->assertEquals(3, $count);
+    }
+
+
     /**
      * Resets Yii2 Request component so it can handle another fake request and resolves it
      */

@@ -40,8 +40,6 @@ class City extends ActiveRecord implements CityInterface
                     }
                 }
             }
-        } else {
-            $multilingual->cityNeedsConfirmation = true;
         }
         return $model;
     }

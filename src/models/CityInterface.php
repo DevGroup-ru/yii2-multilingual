@@ -1,11 +1,9 @@
 <?php
 namespace DevGroup\Multilingual\models;
 
-use DevGroup\Multilingual\City;
-
 interface CityInterface
 {
-    public static function getPreferredCity(City $city);
+    public static function getPreferredCity(\DevGroup\Multilingual\City $city);
 
     public static function getById($id);
 
