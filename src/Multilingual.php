@@ -82,9 +82,15 @@ class Multilingual extends Component implements BootstrapInterface
      * @var bool needs Confirmation requested language?
      */
     public $needsConfirmation = false;
-
-
+    /**
+     * @var bool needs Confirmation user City?
+     */
     public $cityNeedsConfirmation = false;
+
+    /***
+     * @var int max distance in km between user geo information and needed city's
+     */
+    public $cityMaxDistance = 150;
 
     /**
      * @var array array of confirmation Events
@@ -367,6 +373,9 @@ class Multilingual extends Component implements BootstrapInterface
 
     }
 
+    /***
+     * @return null|CityInterface
+     */
     public function getPreferredCity()
     {
         if ($this->_preferred_city === null && is_subclass_of($this->modelsMap['City'], CityInterface::class)) {
@@ -383,7 +392,7 @@ class Multilingual extends Component implements BootstrapInterface
                     $city_id
                 );
             } else {
-                $geo = $this->geo() ? $this->geo() : new GeoInfo();
+                $geo = $this->geo() !== null ? $this->geo() : new GeoInfo();
                 $this->_preferred_city = call_user_func(
                     [
                         $this->modelsMap['City'],

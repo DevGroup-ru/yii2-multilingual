@@ -15,9 +15,10 @@ use yii2tech\filedb\ActiveRecord;
  */
 class City extends ActiveRecord implements CityInterface
 {
-
+    /**
+     * @var CityInterface[]
+     */
     protected static $_all = [];
-
 
     public static function getPreferredCity(\DevGroup\Multilingual\City $city)
     {
@@ -34,7 +35,9 @@ class City extends ActiveRecord implements CityInterface
                 foreach (self::find()->all() as $item) {
                     /**@var $item CityInterface */
                     $newDist = GeoHelper::getDistance($item->lat, $item->lon, $city->lat, $city->lon);
-                    if ($dist === false || $newDist < $dist) {
+                    if (($dist === false || $newDist < $dist) &&
+                        ($multilingual->cityMaxDistance == false || $newDist < $multilingual->cityMaxDistance)
+                    ) {
                         $dist = $newDist;
                         $model = $item;
                     }
@@ -44,10 +47,12 @@ class City extends ActiveRecord implements CityInterface
         return $model;
     }
 
+
     public static function getById($id)
     {
         return self::findOne(['id' => $id]);
     }
+
 
     public static function getAll()
     {
@@ -59,10 +64,12 @@ class City extends ActiveRecord implements CityInterface
         return static::$_all;
     }
 
+
     public function getName()
     {
         return $this->name;
     }
+
 
     public function getId()
     {

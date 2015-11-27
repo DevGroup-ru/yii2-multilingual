@@ -441,6 +441,26 @@ class DatabaseTest extends \PHPUnit_Extensions_Database_TestCase
     }
 
 
+    public function testCityByGeoFar()
+    {
+        /** @var \DevGroup\Multilingual\Multilingual $multilingual */
+        $multilingual = Yii::$app->multilingual;
+        $_SERVER['SERVER_NAME'] = 'example.com';
+        $_SERVER['REQUEST_URI'] = '/en/';
+        $multilingual->handlers[0]['default']['city'] = [
+            'iso' => null,
+            'name' => 'Reston',
+            'lat' => 38.96872,
+            'lon' => -77.3411
+        ];
+        $multilingual->retrieveInfo();
+        $this->resolve();
+
+        $result = $multilingual->getPreferredCity();
+        $this->assertEquals(null, $result);
+        $this->assertTrue($multilingual->cityNeedsConfirmation);
+    }
+
     public function testCityARModel()
     {
         /** @var \DevGroup\Multilingual\Multilingual $multilingual */
