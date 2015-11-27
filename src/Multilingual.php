@@ -2,7 +2,7 @@
 
 namespace DevGroup\Multilingual;
 
-use DevGroup\Multilingual\languagesFilters\GettingLanguage;
+use DevGroup\Multilingual\models\CityInterface;
 use DevGroup\Multilingual\models\CountryLanguage;
 use DevGroup\Multilingual\models\Language;
 use Yii;
@@ -68,7 +68,7 @@ class Multilingual extends Component implements BootstrapInterface
      */
     public $handlers = [
         [
-            'class' => 'DevGroup\Multilingual\DefaultGeoProvider',
+            'class' => 'DevGroup\Multilingual\geoProviders\DefaultGeoProvider',
             'default' => [
                 'country' => [
                     'name' => 'Russia',
@@ -82,6 +82,9 @@ class Multilingual extends Component implements BootstrapInterface
      * @var bool needs Confirmation requested language?
      */
     public $needsConfirmation = false;
+
+
+    public $cityNeedsConfirmation = false;
 
     /**
      * @var array array of confirmation Events
@@ -122,6 +125,8 @@ class Multilingual extends Component implements BootstrapInterface
      */
     protected $_languages = [];
 
+    protected $_preferred_city = null;
+
     /**
      * Initializes the component
      */
@@ -155,16 +160,15 @@ class Multilingual extends Component implements BootstrapInterface
      */
     public function bootstrap($app)
     {
-
         $app->on(Application::EVENT_BEFORE_REQUEST, function () {
             $this->retrieveInfo();
             $this->retrieveLanguageFromGeo();
+            $this->getPreferredCity();
         });
         $app->on(Application::EVENT_BEFORE_ACTION, function () {
             $this->retrieveCookieLanguage();
         });
         $this->registerTranslations();
-
     }
 
     /**
@@ -356,5 +360,51 @@ class Multilingual extends Component implements BootstrapInterface
             ]
         );
         return Url::to($params);
+    }
+
+
+    public function getPreferredCountry()
+    {
+
+    }
+
+    public function getPreferredCity()
+    {
+        if ($this->_preferred_city === null && is_subclass_of($this->modelsMap['City'], CityInterface::class)) {
+            $city_id = Yii::$app->request->get('multilingual-city-id', false);
+            if ($city_id === false) {
+                $city_id = Yii::$app->request->cookies->getValue('city_id', false);
+            } else {
+                $this->cityNeedsConfirmation = false;
+            }
+            if ($city_id !== false) {
+                $this->_preferred_city = call_user_func(
+                    [
+                        $this->modelsMap['City'],
+                        'getById'
+                    ],
+                    $city_id
+                );
+            } else {
+                $geo = $this->geo() ? $this->geo() : new GeoInfo();
+                $this->_preferred_city = call_user_func(
+                    [
+                        $this->modelsMap['City'],
+                        'getPreferredCity'
+                    ],
+                    $geo->city
+                );
+            }
+            if ($this->_preferred_city !== null &&
+                !Yii::$app->request->cookies->has('city_id') &&
+                $this->cityNeedsConfirmation === false
+            ) {
+                Yii::$app->response->cookies->add(new Cookie([
+                    'name' => 'city_id',
+                    'value' => $this->_preferred_city->getId(),
+                ]));
+            }
+        }
+        return $this->_preferred_city;
     }
 }
