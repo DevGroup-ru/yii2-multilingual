@@ -19,7 +19,33 @@ use \yii2tech\filedb\ActiveRecord;
  * @property string $hreflang
  * @property string $db_table_postfix
  */
-class Language extends ActiveRecord
+class Language extends ActiveRecord implements LanguageInterface
 {
 
+    protected static $_all = [];
+
+    public static function getById($id)
+    {
+        return self::findOne(['id' => $id]);
+    }
+
+    public static function getAll()
+    {
+        if (static::$_all === []) {
+            foreach (self::find()->all() as $item) {
+                static::$_all[$item->id] = $item;
+            }
+        }
+        return static::$_all;
+    }
+
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    public function getName()
+    {
+        return $this->name;
+    }
 }

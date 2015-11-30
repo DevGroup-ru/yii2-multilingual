@@ -3,13 +3,12 @@
 namespace DevGroup\Multilingual;
 
 use DevGroup\Multilingual\models\CityInterface;
-use DevGroup\Multilingual\models\CountryLanguage;
-use DevGroup\Multilingual\models\Language;
+use DevGroup\Multilingual\models\CountryLanguageInterface;
+use DevGroup\Multilingual\models\LanguageInterface;
 use Yii;
 use yii\base\Application;
 use yii\base\BootstrapInterface;
 use yii\base\Component;
-use yii\db\BaseActiveRecord;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Url;
 use yii\web\Cookie;
@@ -82,6 +81,12 @@ class Multilingual extends Component implements BootstrapInterface
      * @var bool needs Confirmation requested language?
      */
     public $needsConfirmation = false;
+
+    /**
+     * @var bool needs detect city?
+     */
+    public $needsDetectCity = true;
+
     /**
      * @var bool needs Confirmation user City?
      */
@@ -133,6 +138,8 @@ class Multilingual extends Component implements BootstrapInterface
 
     protected $_preferred_city = null;
 
+    protected $_preferred_country = null;
+
     /**
      * Initializes the component
      */
@@ -145,9 +152,9 @@ class Multilingual extends Component implements BootstrapInterface
     public function getAllLanguages()
     {
         if ($this->_languages === []) {
-            if (is_subclass_of($this->modelsMap['Language'], BaseActiveRecord::class)) {
+            if (is_subclass_of($this->modelsMap['Language'], LanguageInterface::class)) {
                 $this->_languages = array_reduce(
-                    call_user_func([$this->modelsMap['Language'], 'find'])->all(),
+                    call_user_func([$this->modelsMap['Language'], 'getAll']),
                     function ($arr, $i) {
                         $arr[$i->id] = $i;
                         return $arr;
@@ -288,7 +295,6 @@ class Multilingual extends Component implements BootstrapInterface
     public function getLanguageFromGeo()
     {
         // ok we have at least geo object, try to find language for it
-
         if ($this->language_id_geo === null) {
             if ($this->geo instanceof GeoInfo) {
                 $country = $this->geo->country;
@@ -298,9 +304,15 @@ class Multilingual extends Component implements BootstrapInterface
                     'name',
                 ];
                 foreach ($searchOrder as $attribute) {
-                    if (isset($country->$attribute)) {
-                        $model = CountryLanguage::find()
-                            ->where([$attribute => $country->$attribute])
+                    if (isset($country->$attribute) &&
+                        is_subclass_of($this->modelsMap['CountryLanguage'], CountryLanguageInterface::class)
+                    ) {
+                        $model = call_user_func(
+                            [
+                                $this->modelsMap['CountryLanguage'],
+                                'find'
+                            ]
+                        )->where([$attribute => $country->$attribute])
                             ->one();
                         if ($model !== null) {
                             $this->language_id_geo = $model->language_id;
@@ -321,7 +333,14 @@ class Multilingual extends Component implements BootstrapInterface
     {
         if (Yii::$app->request->cookies->has('language_id')) {
             $language_id = intval(Yii::$app->request->cookies->get('language_id')->value);
-            if (Language::findOne($language_id) !== null) {
+            if (call_user_func(
+                    [
+                        $this->modelsMap['Language'],
+                        'getById'
+                    ],
+                    $language_id
+                ) !== null
+            ) {
                 $this->cookie_language_id = $language_id;
             }
         }
@@ -370,7 +389,23 @@ class Multilingual extends Component implements BootstrapInterface
 
     public function getPreferredCountry()
     {
-
+        if ($this->_preferred_country === null) {
+            $preferred_city = $this->getPreferredCity();
+            if ($preferred_city !== null) {
+                $this->_preferred_country = $preferred_city->country;
+            } elseif ($this->geo() !== null && $this->geo()->country !== null) {
+                $this->_preferred_country = call_user_func(
+                    [
+                        $this->modelsMap['CountryLanguage'],
+                        'findOne'
+                    ],
+                    [
+                        'iso_3166_1_alpha_2' => $this->geo()->country->iso_3166_1_alpha_2
+                    ]
+                );
+            }
+        }
+        return $this->_preferred_country;
     }
 
     /***
@@ -378,7 +413,10 @@ class Multilingual extends Component implements BootstrapInterface
      */
     public function getPreferredCity()
     {
-        if ($this->_preferred_city === null && is_subclass_of($this->modelsMap['City'], CityInterface::class)) {
+        if ($this->_preferred_city === null
+            && is_subclass_of($this->modelsMap['City'], CityInterface::class)
+            && $this->needsDetectCity === true
+        ) {
             $city_id = Yii::$app->request->get('multilingual-city-id', false);
             if ($city_id === false) {
                 $city_id = Yii::$app->request->cookies->getValue('city_id', false);

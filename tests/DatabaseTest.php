@@ -478,6 +478,46 @@ class DatabaseTest extends \PHPUnit_Extensions_Database_TestCase
         $this->assertEquals(3, $count);
     }
 
+    public function testPreferredCountry()
+    {
+        /** @var \DevGroup\Multilingual\Multilingual $multilingual */
+        $multilingual = Yii::$app->multilingual;
+        $_SERVER['SERVER_NAME'] = 'example.com';
+        $_SERVER['REQUEST_URI'] = '/en/';
+        $multilingual->handlers[0]['default']['city'] = [
+            'iso' => null,
+            'name' => 'Michurinsk',
+            'lat' => 52.8978,
+            'lon' => 40.4907
+        ];
+        $multilingual->retrieveInfo();
+        $this->resolve();
+        $model = $multilingual->getPreferredCountry();
+        $this->assertEquals(1, $model->id);
+    }
+
+
+    public function testPreferredCountryByGeo()
+    {
+        /** @var \DevGroup\Multilingual\Multilingual $multilingual */
+        $multilingual = Yii::$app->multilingual;
+        $_SERVER['SERVER_NAME'] = 'example.com';
+        $_SERVER['REQUEST_URI'] = '/en/';
+        $multilingual->handlers[0]['default']['country'] = [
+            'name' => 'England',
+            'name_native' => 'England',
+            'language_id' => 5,
+            'iso_3166_1_alpha_2' => 'en',
+            'iso_3166_1_alpha_3' => 'eng',
+        ];
+        $multilingual->retrieveInfo();
+        $multilingual->needsDetectCity = false;
+        $this->resolve();
+        $model = $multilingual->getPreferredCountry();
+        $this->assertEquals(5, $model->id);
+        $this->assertEquals(null, $multilingual->getPreferredCity());
+    }
+
 
     /**
      * Resets Yii2 Request component so it can handle another fake request and resolves it

@@ -12,6 +12,7 @@ use yii2tech\filedb\ActiveRecord;
  * @property string $name;
  * @property float $lat;
  * @property float $lon;
+ * @property integer $country_id
  */
 class City extends ActiveRecord implements CityInterface
 {
@@ -74,5 +75,10 @@ class City extends ActiveRecord implements CityInterface
     public function getId()
     {
         return $this->id;
+    }
+
+    public function getCountry()
+    {
+        return $this->hasOne(CountryLanguage::className(), ['id' => 'country_id']);
     }
 }

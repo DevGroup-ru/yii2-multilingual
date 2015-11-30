@@ -15,7 +15,7 @@ use \yii2tech\filedb\ActiveRecord;
  * @property string $iso_3166_1_alpha_2
  * @property string $iso_3166_1_alpha_3
  */
-class CountryLanguage extends ActiveRecord
+class CountryLanguage extends ActiveRecord implements CountryLanguageInterface
 {
 
     public function getLanguage()

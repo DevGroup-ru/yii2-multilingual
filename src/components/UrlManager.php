@@ -98,7 +98,13 @@ class UrlManager extends BaseUrlManager
         }
 
         /** @var Language $requested_language */
-        $requested_language = Language::findOne(['id' => $requested_language_id]);
+        $requested_language = call_user_func(
+            [
+                $multilingual->modelsMap['Language'],
+                'getById'
+            ],
+            $requested_language_id
+        );
         if ($requested_language === null) {
             throw new ServerErrorHttpException('Requested language not found');
         }
@@ -181,7 +187,13 @@ class UrlManager extends BaseUrlManager
                 if (in_array($route, $this->excludeRoutes)) {
                     $multilingual->language_id = $multilingual->cookie_language_id;
                     /** @var Language $lang */
-                    $lang = Language::findOne($multilingual->cookie_language_id);
+                    $lang = call_user_func(
+                        [
+                            $multilingual->modelsMap['Language'],
+                            'getById'
+                        ],
+                        $multilingual->cookie_language_id
+                    );
                     Yii::$app->language = $lang->yii_language;
                     return $resolved;
                 }

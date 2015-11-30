@@ -35,5 +35,11 @@ interface CityInterface
      */
     public function getId();
 
+    /***
+     * object of CountryLanguage
+     * @return CountryLanguage
+     */
+    public function getCountry();
+
 
 }
