@@ -101,7 +101,6 @@ class Multilingual extends Component implements BootstrapInterface
      * @var array array of confirmation Events
      */
     public $needConfirmationEvents = [
-        'DevGroup\Multilingual\LanguageEvents\GettingLanguageByCookie',
         'DevGroup\Multilingual\LanguageEvents\GettingLanguageByGeo',
         'DevGroup\Multilingual\LanguageEvents\GettingLanguageByUserInformation',
     ];
@@ -111,8 +110,9 @@ class Multilingual extends Component implements BootstrapInterface
     public $requestedLanguageEvents = [
         'DevGroup\Multilingual\LanguageEvents\GettingLanguageByUrl',
         'DevGroup\Multilingual\LanguageEvents\GettingLanguageByCookie',
-        'DevGroup\Multilingual\LanguageEvents\GettingLanguageByGeo',
         'DevGroup\Multilingual\LanguageEvents\GettingLanguageByUserInformation',
+        'DevGroup\Multilingual\LanguageEvents\GettingLanguageByGeo',
+
     ];
     /**
      * @var array array of preferred language Events
@@ -440,7 +440,8 @@ class Multilingual extends Component implements BootstrapInterface
                 );
             }
             if ($this->_preferred_city !== null &&
-                !Yii::$app->request->cookies->has('city_id') &&
+                (!Yii::$app->request->cookies->has('city_id') ||
+                    Yii::$app->request->cookies->get('city_id') !== $this->_preferred_city->getId()) &&
                 $this->cityNeedsConfirmation === false
             ) {
                 Yii::$app->response->cookies->add(new Cookie([

@@ -13,9 +13,7 @@ use yii\helpers\Html;
 
 $modal = Modal::begin([
     'header' => Html::tag('h4', Multilingual::t('widget', 'Please, confirm language')),
-    'toggleButton' => ['label' => 'click me'],
 ]); ?>
-
     <p>
         <?= Multilingual::t('widget', 'Your language is "{name}". Please, confirm or select another language:',
             ['name' => $languages[$currentLanguageId]->name]) ?>

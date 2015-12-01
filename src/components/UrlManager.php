@@ -162,6 +162,7 @@ class UrlManager extends BaseUrlManager
                 $this->on(self::GET_PREFERRED_LANGUAGE, [$filter, 'gettingLanguage']);
             }
         }
+
         $eventRequestedLanguage = new LanguageEvent();
         $eventRequestedLanguage->multilingual = $multilingual;
         $eventRequestedLanguage->domain = $this->requestedDomain();
@@ -177,6 +178,8 @@ class UrlManager extends BaseUrlManager
         $languageMatched = $languages[$multilingual->language_id];
 
         Yii::$app->language = $languageMatched->yii_language;
+
+
         $path = explode('/', $request->pathInfo);
         $folder = array_shift($path);
 
@@ -235,7 +238,6 @@ class UrlManager extends BaseUrlManager
             );
             Yii::$app->end();
         }
-
 
         if (!empty($languageMatched->folder)) {
             $request->setPathInfo(implode('/', $path));
