@@ -210,7 +210,7 @@ class Multilingual extends Component implements BootstrapInterface
     /**
      * @return string IP where user is located
      */
-    private function getIp()
+    public function getIp()
     {
         if ($this->mockIp !== false) {
             return $this->mockIp;
@@ -237,6 +237,7 @@ class Multilingual extends Component implements BootstrapInterface
     public function retrieveInfo()
     {
         $ip = $this->getIp();
+
 
         Yii::beginProfile('Retrieving of geo ip info');
 
@@ -430,6 +431,9 @@ class Multilingual extends Component implements BootstrapInterface
                     $city_id
                 );
             } else {
+                if ($this->geo() == null) {
+                    $this->retrieveInfo();
+                }
                 $geo = $this->geo() !== null ? $this->geo() : new GeoInfo();
                 $this->_preferred_city = call_user_func(
                     [

@@ -16,6 +16,10 @@ use yii\helpers\Html;
 
 <div id="select_geo_block" class="sidebar-module sidebar-module-inset">
 
+    <p id="ip">
+        <?= $multilingual->getIp(); ?>
+    </p>
+
     <p>
         <span class="city">
         <?php if ($city === null): ?>

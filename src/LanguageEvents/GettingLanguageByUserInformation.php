@@ -7,17 +7,19 @@ class GettingLanguageByUserInformation implements GettingLanguage
     public static function gettingLanguage(languageEvent $event)
     {
         if ($event->currentLanguageId == false) {
-            $languages = array_reduce(
-                $event->languages,
-                function ($arr, $i) {
-                    $arr[$i['yii_language']] = $i['id'];
-                    return $arr;
-                },
-                []
-            );
-            if ($lang_name = \Yii::$app->request->getPreferredLanguage(array_keys($languages))) {
-                $event->currentLanguageId = $languages[$lang_name];
-                $event->resultClass = self::class;
+            foreach (\Yii::$app->request->getAcceptableLanguages() as  $acceptableLanguage) {
+                $acceptableLanguage = str_replace('_', '-', strtolower($acceptableLanguage));
+                foreach ($event->languages as $id_lang => $language) {
+                    $normalizedLanguage = str_replace('_', '-', strtolower($language['yii_language']));
+                    if ($normalizedLanguage === $acceptableLanguage || // en-us==en-us
+                        strpos($acceptableLanguage, $normalizedLanguage . '-') === 0 || // en==en-us
+                        strpos($normalizedLanguage, $acceptableLanguage . '-') === 0
+                    ) { // en-us==en
+                        $event->currentLanguageId = $id_lang;
+                        $event->resultClass = self::class;
+                        return;
+                    }
+                }
             }
         }
     }
