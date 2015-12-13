@@ -13,8 +13,8 @@ $_SERVER['REQUEST_URI'] = '/';
 $_SERVER['SERVER_NAME'] = 'yii2-multilingual.test';
 
 
-require_once(__DIR__ . '/../../../../vendor/autoload.php');
-require_once(__DIR__ . '/../../../../vendor/yiisoft/yii2/Yii.php');
+require_once(__DIR__ . '/../vendor/autoload.php');
+require_once(__DIR__ . '/../vendor/yiisoft/yii2/Yii.php');
 
 Yii::setAlias('@DevGroup/Multilingual/tests', __DIR__);
 Yii::setAlias('@DevGroup/Multilingual', dirname(__DIR__).'/src/');
