@@ -7,7 +7,13 @@ use DevGroup\Multilingual\models\Language;
 use Yii;
 use yii\base\Widget;
 use yii\bootstrap\Tabs;
+use yii\helpers\ArrayHelper;
 
+/**
+ * MultilingualFormTabs is a special Widget for rendering form inputs based on model language
+ *
+ * @package DevGroup\Multilingual\widgets
+ */
 class MultilingualFormTabs extends Widget
 {
     /** @var \yii\db\ActiveRecord|\DevGroup\Multilingual\traits\MultilingualTrait|\DevGroup\Multilingual\behaviors\MultilingualActiveRecord */
@@ -21,6 +27,15 @@ class MultilingualFormTabs extends Widget
 
     /** @var array Tabs options */
     public $options = [];
+
+    /** @var array Additional tabs for list */
+    public $additionalTabs = [];
+
+    /** @var string Additional class for base nav-tabs-custom tag */
+    public $tagClass = '';
+
+    /** @var string HTML for footer of this nav-tabs-custom */
+    public $footer = '';
 
     /**
      * @inheritdoc
@@ -52,10 +67,13 @@ class MultilingualFormTabs extends Widget
 
         }
         FlagIconAsset::register($this->view);
-        return '<div class="nav-tabs-custom">' . Tabs::widget([
+
+        $items = ArrayHelper::merge($items, $this->additionalTabs);
+
+        return "<div class=\"nav-tabs-custom {$this->tagClass}\">" . Tabs::widget([
             'items' => $items,
             'options' => $this->options,
             'encodeLabels' => false,
-        ]) . '</div>';
+        ]) . $this->footer . '</div>';
     }
 }
