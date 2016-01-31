@@ -23,7 +23,7 @@
         "kartik-v/yii2-icons": "~1.4.0"
     },
     "require-dev": {
-        "devgroup/dotplant-dev": "*"
+        "devgroup/dotplant-dev": "~1.0.0"
     },
     "autoload": {
         "psr-4": {
