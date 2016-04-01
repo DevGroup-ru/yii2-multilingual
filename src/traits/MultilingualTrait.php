@@ -9,6 +9,23 @@ use yii\db\ActiveRecord;
 
 trait MultilingualTrait
 {
+    protected static $translationTableName;
+
+    /**
+     * @return string
+     */
+    protected static function getTranslationTableName()
+    {
+        if (self::$translationTableName === null) {
+            /** @var ActiveRecord|MultilingualActiveRecord $model */
+            $model = new static;
+            /** @var ActiveRecord $translationModelClassName */
+            $translationModelClassName = $model->getTranslationModelClassName();
+            self::$translationTableName = $translationModelClassName::tableName();
+        }
+        return self::$translationTableName;
+    }
+
     /**
      * @return ActiveQuery
      * @throws \yii\base\InvalidConfigException
@@ -19,31 +36,25 @@ trait MultilingualTrait
         $query = Yii::createObject(ActiveQuery::className(), [get_called_class()]);
         $query = $query
             ->innerJoinWith(['defaultTranslation']);
-        /** @var ActiveRecord|MultilingualActiveRecord $modelInstance */
 
         if (method_exists(get_called_class(), 'applyDefaultScope')) {
             $query = call_user_func([get_called_class(), 'applyDefaultScope'], $query);
         } else {
+            /** @var ActiveRecord|MultilingualActiveRecord $modelInstance */
             $modelInstance = new self;
             if ($modelInstance->translationPublishedAttribute !== false) {
                 /** @var ActiveRecord $translationModelClassName */
                 $translationModelClassName = $modelInstance->getTranslationModelClassName();
-
-                $tableName = $translationModelClassName::tableName();
-
+                self::$translationTableName = $translationModelClassName::tableName();
                 // add condition on
                 $where = [
-                    "{$tableName}.{$modelInstance->translationPublishedAttribute}" =>
+                    self::$translationTableName . '.' . $modelInstance->translationPublishedAttribute =>
                         $modelInstance->translationPublishedAttributeValue
                 ];
-
                 unset($modelInstance);
-
                 $query = $query->where($where);
             }
         }
-
-
         return $query;
     }
 
@@ -54,7 +65,7 @@ trait MultilingualTrait
     {
         /** @var \yii\db\ActiveRecord|\DevGroup\Multilingual\behaviors\MultilingualActiveRecord $this */
         return $this->hasOne($this->getTranslationModelClassName(), ['model_id' => 'id'])
-            ->where(['language_id' => Yii::$app->multilingual->language_id]);
+            ->where([static::getTranslationTableName() . '.language_id' => Yii::$app->multilingual->language_id]);
     }
 
     /**
