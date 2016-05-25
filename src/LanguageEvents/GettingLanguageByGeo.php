@@ -1,4 +1,5 @@
 <?php
+
 namespace DevGroup\Multilingual\LanguageEvents;
 
 class GettingLanguageByGeo implements GettingLanguage
@@ -11,5 +12,4 @@ class GettingLanguageByGeo implements GettingLanguage
             $event->resultClass = self::class;
         }
     }
-
 }

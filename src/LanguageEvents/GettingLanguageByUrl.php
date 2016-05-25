@@ -1,11 +1,13 @@
 <?php
+
 namespace DevGroup\Multilingual\LanguageEvents;
 
+use DevGroup\Multilingual\models\Context;
 use DevGroup\Multilingual\models\Language;
+use yii\helpers\VarDumper;
 
 class GettingLanguageByUrl implements GettingLanguage, AfterGettingLanguage
 {
-
     public static function gettingLanguage(languageEvent $event)
     {
         if ($event->currentLanguageId === false) {
@@ -13,6 +15,15 @@ class GettingLanguageByUrl implements GettingLanguage, AfterGettingLanguage
             $folder = array_shift($path);
             $languages = $event->languages;
             $domain = $event->domain;
+            foreach (Context::find()->all() as $context) {
+                if ($context->domain === $domain) {
+                    $languages = $context->languages;
+                    $language = reset($languages);
+                    if ($language !== null) {
+                        $event->multilingual->default_language_id = $language->id;
+                    }
+                }
+            }
             /** @var bool|Language $languageMatched */
             foreach ($languages as $language) {
                 $matchedDomain = $language->domain === $domain;
@@ -36,7 +47,6 @@ class GettingLanguageByUrl implements GettingLanguage, AfterGettingLanguage
 
     public static function afterGettingLanguage(languageEvent $event)
     {
-
         $languageMatched = $event->languages[$event->multilingual->language_id];
         if ($event->needRedirect === true && $languageMatched->folder) {
             if ($languageMatched->folder === $event->request->pathInfo) {
@@ -55,7 +65,6 @@ class GettingLanguageByUrl implements GettingLanguage, AfterGettingLanguage
                 $event->redirectCode = 302;
             }
         }
-
         if (!empty($languageMatched->domain) && $languageMatched->domain !== $event->domain) {
             // no matched language and not in excluded routes - should redirect to user's regional domain with 302
             \Yii::$app->urlManager->forceHostInUrl = true;
@@ -67,9 +76,5 @@ class GettingLanguageByUrl implements GettingLanguage, AfterGettingLanguage
             );
             $event->redirectCode = 302;
         }
-
-
     }
-
-
 }

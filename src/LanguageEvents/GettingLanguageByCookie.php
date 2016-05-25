@@ -1,4 +1,5 @@
 <?php
+
 namespace DevGroup\Multilingual\LanguageEvents;
 
 use yii\web\Cookie;
@@ -7,7 +8,6 @@ class GettingLanguageByCookie implements GettingLanguage, AfterGettingLanguage
 {
     public static function gettingLanguage(languageEvent $event)
     {
-
         if ($event->currentLanguageId === false) {
             if (\Yii::$app->request->cookies->has('language_id') &&
                 in_array(
@@ -24,13 +24,11 @@ class GettingLanguageByCookie implements GettingLanguage, AfterGettingLanguage
 
     public static function afterGettingLanguage(languageEvent $event)
     {
-
         if (\Yii::$app->request->cookies->getValue('language_id') !== $event->currentLanguageId) {
             \Yii::$app->response->cookies->add(new Cookie([
                 'name' => 'language_id',
                 'value' => $event->currentLanguageId,
             ]));
         }
-
     }
 }

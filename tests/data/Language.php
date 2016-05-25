@@ -12,6 +12,8 @@ return [
         'folder' => 'en',
         'yii_language' => 'en-US',
         'db_table_postfix' => 'en',
+        'context_id' => '1',
+        'sort_order' => '1',
     ],
     2 => [
         'id' => 2,
@@ -24,6 +26,8 @@ return [
         'folder' => '',
         'yii_language' => 'ru',
         'db_table_postfix' => 'ru',
+        'context_id' => '1',
+        'sort_order' => '2',
     ],
     3 => [
         'id' => 3,
@@ -36,5 +40,7 @@ return [
         'folder' => 'de',
         'yii_language' => 'de',
         'db_table_postfix' => 'de',
+        'context_id' => '1',
+        'sort_order' => '3',
     ],
 ];

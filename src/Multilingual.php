@@ -18,7 +18,6 @@ class Multilingual extends Component implements BootstrapInterface
     /** @var bool Use X-Forwarded-For for ip detection */
     public $useXForwardedFor = false;
 
-
     /** @var bool Use CLIENT_IP header for ip detection */
     public $useClientIp = false;
 
@@ -461,5 +460,12 @@ class Multilingual extends Component implements BootstrapInterface
             $this->cityNeedsConfirmation = true;
         }
         return $this->_preferred_city;
+    }
+
+    public function getContextId()
+    {
+        return isset($this->_languages[$this->language_id]) === true
+            ? $this->_languages[$this->language_id]->context_id
+            : null;
     }
 }

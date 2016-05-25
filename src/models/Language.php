@@ -2,8 +2,9 @@
 
 namespace DevGroup\Multilingual\models;
 
+use DevGroup\Multilingual\traits\FileActiveRecord;
 use Yii;
-use \yii2tech\filedb\ActiveRecord;
+use yii2tech\filedb\ActiveRecord;
 
 /**
  * Class Language
@@ -17,12 +18,25 @@ use \yii2tech\filedb\ActiveRecord;
  * @property string $folder
  * @property string $yii_language
  * @property string $hreflang
+ * @property string $context_id
  * @property string $db_table_postfix
  */
 class Language extends ActiveRecord implements LanguageInterface
 {
+    use FileActiveRecord;
 
     protected static $_all = [];
+
+    public function rules()
+    {
+        return [
+            [['name', 'domain', 'yii_language', 'context_id', 'iso_639_1', 'iso_639_2t'], 'required'],
+            [['name', 'name_native', 'domain', 'folder', 'yii_language', 'hreflang'], 'string'],
+            [['iso_639_1'], 'string', 'max' => 2],
+            [['iso_639_2t'], 'string', 'max' => 3],
+            [['context_id', 'sort_order'], 'integer'],
+        ];
+    }
 
     public static function getById($id)
     {
@@ -47,5 +61,10 @@ class Language extends ActiveRecord implements LanguageInterface
     public function getName()
     {
         return $this->name;
+    }
+
+    public function getContext()
+    {
+        return $this->hasOne(Context::class, ['id' => 'context_id']);
     }
 }

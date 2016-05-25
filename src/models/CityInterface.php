@@ -1,4 +1,5 @@
 <?php
+
 namespace DevGroup\Multilingual\models;
 
 interface CityInterface
@@ -40,6 +41,4 @@ interface CityInterface
      * @return CountryLanguage
      */
     public function getCountry();
-
-
 }
