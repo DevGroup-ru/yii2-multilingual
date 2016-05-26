@@ -43,7 +43,7 @@ class Language extends ActiveRecord implements LanguageInterface
 
     public static function getAll()
     {
-        return static::find()->all();
+        return static::find()->orderBy(['sort_order' => SORT_ASC])->all();
     }
 
     public function getId()
