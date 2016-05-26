@@ -25,8 +25,6 @@ class Language extends ActiveRecord implements LanguageInterface
 {
     use FileActiveRecord;
 
-    protected static $_all = [];
-
     public function rules()
     {
         return [
@@ -45,12 +43,7 @@ class Language extends ActiveRecord implements LanguageInterface
 
     public static function getAll()
     {
-        if (static::$_all === []) {
-            foreach (self::find()->all() as $item) {
-                static::$_all[$item->id] = $item;
-            }
-        }
-        return static::$_all;
+        return static::find()->all();
     }
 
     public function getId()
