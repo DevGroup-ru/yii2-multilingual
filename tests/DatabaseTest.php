@@ -660,4 +660,46 @@ class DatabaseTest extends \PHPUnit_Extensions_Database_TestCase
 ';
         $this->assertEquals($expected, HrefLang::widget());
     }
+
+    public function testFirstContext()
+    {
+        /** @var \DevGroup\Multilingual\Multilingual $multilingual */
+        $multilingual = Yii::$app->multilingual;
+
+        Yii::$app->trigger(Application::EVENT_BEFORE_REQUEST);
+
+        // context = 1 lang = en
+        $_SERVER['SERVER_NAME'] = 'example.ru';
+        $_SERVER['REQUEST_URI'] = '/';
+        $this->resolve();
+        $this->assertEquals(2, $multilingual->language_id);
+        $this->assertEquals(1, $multilingual->contextId);
+        $this->assertEquals(3, count($multilingual->getAllLanguages()));
+    }
+
+    public function testSecondContext()
+    {
+        /** @var \DevGroup\Multilingual\Multilingual $multilingual */
+        $multilingual = Yii::$app->multilingual;
+
+        Yii::$app->trigger(Application::EVENT_BEFORE_REQUEST);
+
+        // context = 2 lang = ru
+        $_SERVER['SERVER_NAME'] = 'ru.example.org';
+        $_SERVER['REQUEST_URI'] = '/';
+        $this->resolve();
+        $this->assertEquals(4, $multilingual->language_id);
+        $this->assertEquals(2, $multilingual->contextId);
+        // context = 2 lang = en
+        $_SERVER['SERVER_NAME'] = 'example.org';
+        $_SERVER['REQUEST_URI'] = '/';
+        $this->resolve();
+        $this->assertEquals(5, $multilingual->language_id);
+        $this->assertEquals(2, $multilingual->contextId);
+        //
+        $languages = $multilingual->getAllLanguages();
+        $defaultLanguage = reset($languages);
+        $this->assertEquals(2, count($languages));
+        $this->assertEquals(5, $defaultLanguage->id);
+    }
 }
