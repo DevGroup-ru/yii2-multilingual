@@ -3,7 +3,9 @@
 namespace DevGroup\Multilingual;
 
 use DevGroup\Multilingual\models\CityInterface;
+use DevGroup\Multilingual\models\Context;
 use DevGroup\Multilingual\models\CountryLanguageInterface;
+use DevGroup\Multilingual\models\Language;
 use DevGroup\Multilingual\models\LanguageInterface;
 use Yii;
 use yii\base\Application;
@@ -13,6 +15,12 @@ use yii\helpers\ArrayHelper;
 use yii\helpers\Url;
 use yii\web\Cookie;
 
+/**
+ * Class Multilingual
+ *
+ * @property integer|null $contextId
+ * @package DevGroup\Multilingual
+ */
 class Multilingual extends Component implements BootstrapInterface
 {
     /** @var bool Use X-Forwarded-For for ip detection */
@@ -150,6 +158,13 @@ class Multilingual extends Component implements BootstrapInterface
 
     public function getAllLanguages()
     {
+        if ($this->contextId !== null) {
+            /** @var Context $context */
+            $context = Context::findOne($this->contextId);
+            if ($context !== null) {
+                return $context->languages;
+            }
+        }
         if ($this->_languages === []) {
             if (is_subclass_of($this->modelsMap['Language'], LanguageInterface::class)) {
                 $this->_languages = array_reduce(
