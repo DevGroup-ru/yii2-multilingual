@@ -1,11 +1,12 @@
 <?php
+
 namespace DevGroup\Multilingual\LanguageEvents;
 
 use DevGroup\Multilingual\models\Language;
+use yii\helpers\ArrayHelper;
 
 class GettingLanguageByUrl implements GettingLanguage, AfterGettingLanguage
 {
-
     public static function gettingLanguage(languageEvent $event)
     {
         if ($event->currentLanguageId === false) {
@@ -36,7 +37,6 @@ class GettingLanguageByUrl implements GettingLanguage, AfterGettingLanguage
 
     public static function afterGettingLanguage(languageEvent $event)
     {
-
         $languageMatched = $event->languages[$event->multilingual->language_id];
         if ($event->needRedirect === true && $languageMatched->folder) {
             if ($languageMatched->folder === $event->request->pathInfo) {
@@ -46,10 +46,11 @@ class GettingLanguageByUrl implements GettingLanguage, AfterGettingLanguage
                 // no matched language and not in excluded routes - should redirect to user's regional domain with 302
                 \Yii::$app->urlManager->forceHostInUrl = true;
                 $event->redirectUrl = \Yii::$app->urlManager->createUrl(
-                    [
-                        $event->request->pathInfo,
-                        'language_id' => $event->multilingual->language_id
-                    ]
+                    ArrayHelper::merge(
+                        [$event->request->pathInfo],
+                        \Yii::$app->request->get(),
+                        ['language_id' => $event->multilingual->language_id]
+                    )
                 );
                 \Yii::$app->urlManager->forceHostInUrl = false;
                 $event->redirectCode = 302;
@@ -60,16 +61,13 @@ class GettingLanguageByUrl implements GettingLanguage, AfterGettingLanguage
             // no matched language and not in excluded routes - should redirect to user's regional domain with 302
             \Yii::$app->urlManager->forceHostInUrl = true;
             $event->redirectUrl = $event->sender->createUrl(
-                [
-                    $event->request->pathInfo,
-                    'language_id' => $event->multilingual->language_id
-                ]
+                ArrayHelper::merge(
+                    [$event->request->pathInfo],
+                    \Yii::$app->request->get(),
+                    ['language_id' => $event->multilingual->language_id]
+                )
             );
             $event->redirectCode = 302;
         }
-
-
     }
-
-
 }
