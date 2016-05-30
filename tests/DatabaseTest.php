@@ -149,27 +149,12 @@ class DatabaseTest extends \PHPUnit_Extensions_Database_TestCase
 
         Yii::$app->trigger(Application::EVENT_BEFORE_REQUEST);
 
-        // test redirect from unknown host to geo-based
-        $_SERVER['SERVER_NAME'] = 'unknown.host';
-        $_SERVER['REQUEST_URI'] = '/';
-        $needsException = true;
-        try {
-            $this->resolve();
-            $needsException = false;
-        } catch (ExitException $e) {
-            $this->assertArraySubset(['location' => ['http://example.ru/']], Yii::$app->response->headers->toArray());
-            $this->assertEquals(302, Yii::$app->response->statusCode);
-            $this->assertEquals(2, $multilingual->language_id_geo);
-        }
-        $this->assertTrue($needsException);
-
-
         // test good domain
         $_SERVER['SERVER_NAME'] = 'example.ru';
         $_SERVER['REQUEST_URI'] = '/';
         $this->resolve();
 
-        $this->assertEquals(2, $multilingual->language_id_geo);
+        $this->assertEquals('rus', $multilingual->iso_639_2t_geo);
         $this->assertEquals(2, $multilingual->language_id);
 
         // geo = ru, domain != ru
@@ -182,7 +167,7 @@ class DatabaseTest extends \PHPUnit_Extensions_Database_TestCase
         } catch (ExitException $e) {
             $this->assertArraySubset(['location' => ['http://example.ru/']], Yii::$app->response->headers->toArray());
             $this->assertEquals(302, Yii::$app->response->statusCode);
-            $this->assertEquals(2, $multilingual->language_id_geo);
+            $this->assertEquals('rus', $multilingual->iso_639_2t_geo);
             $this->assertEquals(2, $multilingual->language_id);
         }
         $this->assertTrue($needsException);
@@ -194,7 +179,7 @@ class DatabaseTest extends \PHPUnit_Extensions_Database_TestCase
         $this->resolve();
 
         // geo = ru
-        $this->assertEquals(2, $multilingual->language_id_geo);
+        $this->assertEquals('rus', $multilingual->iso_639_2t_geo);
         // url requested geo = en
         $this->assertEquals(1, $multilingual->language_id);
 
@@ -206,7 +191,7 @@ class DatabaseTest extends \PHPUnit_Extensions_Database_TestCase
         $this->resolve();
 
         // geo = ru
-        $this->assertEquals(2, $multilingual->language_id_geo);
+        $this->assertEquals('rus', $multilingual->iso_639_2t_geo);
         // url requested geo = en
         $this->assertEquals(1, $multilingual->language_id);
 
@@ -221,7 +206,7 @@ class DatabaseTest extends \PHPUnit_Extensions_Database_TestCase
             $this->assertArraySubset(['location' => ['http://example.com/en/']],
                 Yii::$app->response->headers->toArray());
             $this->assertEquals(301, Yii::$app->response->statusCode);
-            $this->assertEquals(2, $multilingual->language_id_geo);
+            $this->assertEquals('rus', $multilingual->iso_639_2t_geo);
             $this->assertEquals(1, $multilingual->language_id);
         }
         $this->assertTrue($needsException);
@@ -329,7 +314,7 @@ class DatabaseTest extends \PHPUnit_Extensions_Database_TestCase
         $_SERVER['REQUEST_URI'] = '/en/url/to?something=yes';
         $this->resolve();
         // geo = ru
-        $this->assertEquals(2, $multilingual->language_id_geo);
+        $this->assertEquals('rus', $multilingual->iso_639_2t_geo);
         // url requested geo = en
         $this->assertEquals(1, $multilingual->language_id);
 
@@ -639,7 +624,7 @@ class DatabaseTest extends \PHPUnit_Extensions_Database_TestCase
 
         Yii::$app->handleRequest(Yii::$app->request);
 
-        $this->assertEquals(2, $multilingual->language_id_geo);
+        $this->assertEquals('rus', $multilingual->iso_639_2t_geo);
         $this->assertEquals(2, $multilingual->language_id);
         Yii::$app->controller = Yii::$app->createController('/site')[0];
         $expected = '<link href="http://example.com/en/" rel="alternate" hreflang="en">
@@ -652,7 +637,7 @@ class DatabaseTest extends \PHPUnit_Extensions_Database_TestCase
 
         $this->resolve();
         Yii::$app->handleRequest(Yii::$app->request);
-        $this->assertEquals(2, $multilingual->language_id_geo);
+        $this->assertEquals('rus', $multilingual->iso_639_2t_geo);
         $this->assertEquals(2, $multilingual->language_id);
 
         $expected = '<link href="http://example.com/en/site/about" rel="alternate" hreflang="en">

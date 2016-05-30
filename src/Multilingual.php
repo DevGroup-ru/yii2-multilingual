@@ -37,8 +37,8 @@ class Multilingual extends Component implements BootstrapInterface
     /** @var GeoInfo */
     protected $geo = null;
 
-    /** @var null|integer User language ID determined by ip-geo information */
-    public $language_id_geo = null;
+    /** @var null|integer User language iso-code determined by ip-geo information */
+    public $iso_639_2t_geo = null;
 
     /** @var null|int User language ID determined by requested Language Events */
     public $language_id = null;
@@ -300,9 +300,8 @@ class Multilingual extends Component implements BootstrapInterface
      */
     public function retrieveLanguageFromGeo()
     {
-        if (!$this->language_id_geo = $this->getLanguageFromGeo()) {
+        if (!$this->iso_639_2t_geo = $this->getLanguageFromGeo()) {
             $this->geo_default_language_forced = true;
-            $this->language_id_geo = $this->default_language_id;
         }
 
     }
@@ -310,7 +309,7 @@ class Multilingual extends Component implements BootstrapInterface
     public function getLanguageFromGeo()
     {
         // ok we have at least geo object, try to find language for it
-        if ($this->language_id_geo === null) {
+        if ($this->iso_639_2t_geo === null) {
             if ($this->geo instanceof GeoInfo) {
                 $country = $this->geo->country;
                 $searchOrder = [
@@ -330,14 +329,14 @@ class Multilingual extends Component implements BootstrapInterface
                         )->where([$attribute => $country->$attribute])
                             ->one();
                         if ($model !== null) {
-                            $this->language_id_geo = $model->language_id;
+                            $this->iso_639_2t_geo = $model->iso_3166_1_alpha_3;
                             break;
                         }
                     }
                 }
             }
         }
-        return $this->language_id_geo;
+        return $this->iso_639_2t_geo;
     }
 
 
