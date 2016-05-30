@@ -134,7 +134,8 @@ class Multilingual extends Component implements BootstrapInterface
     public $modelsMap = [
         'Language' => 'DevGroup\Multilingual\models\Language',
         'CountryLanguage' => 'DevGroup\Multilingual\models\CountryLanguage',
-        'City' => 'DevGroup\Multilingual\models\City'
+        'City' => 'DevGroup\Multilingual\models\City',
+        'Context' => 'DevGroup\Multilingual\models\Context',
     ];
 
 
@@ -160,7 +161,7 @@ class Multilingual extends Component implements BootstrapInterface
     {
         if ($this->contextId !== null) {
             /** @var Context $context */
-            $context = Context::findOne($this->contextId);
+            $context = call_user_func([$this->modelsMap['Context'], 'find'])->where(['id' => $this->contextId])->one();
             if ($context !== null) {
                 return $context->languages;
             }
