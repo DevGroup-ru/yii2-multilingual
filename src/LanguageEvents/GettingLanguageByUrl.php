@@ -2,9 +2,7 @@
 
 namespace DevGroup\Multilingual\LanguageEvents;
 
-use DevGroup\Multilingual\models\Context;
 use DevGroup\Multilingual\models\Language;
-use yii\helpers\VarDumper;
 
 class GettingLanguageByUrl implements GettingLanguage, AfterGettingLanguage
 {
@@ -15,7 +13,8 @@ class GettingLanguageByUrl implements GettingLanguage, AfterGettingLanguage
             $folder = array_shift($path);
             $languages = $event->languages;
             $domain = $event->domain;
-            foreach (Context::find()->all() as $context) {
+            $contexts = call_user_func([$event->multilingual->modelsMap['Context'], 'find'])->all();
+            foreach ($contexts as $context) {
                 if ($context->domain === $domain) {
                     $languages = $context->languages;
                     $language = reset($languages);
