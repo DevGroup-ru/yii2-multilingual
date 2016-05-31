@@ -4,3 +4,4 @@ coverage
 tests/runtime
 coverage.xml
 .vagrant
+.idea/

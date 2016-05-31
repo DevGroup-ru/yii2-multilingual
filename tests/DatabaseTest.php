@@ -98,7 +98,7 @@ class DatabaseTest extends \PHPUnit_Extensions_Database_TestCase
                 'class' => Connection::className(),
                 'dsn' => 'mysql:host=localhost;dbname=multilingual.dev',
                 'username' => 'root',
-                'password' => '7896321',
+                'password' => '',
             ]);
 
             Yii::$app->getDb()->open();
@@ -503,6 +503,24 @@ class DatabaseTest extends \PHPUnit_Extensions_Database_TestCase
         $this->assertEquals(null, $multilingual->getPreferredCity());
     }
 
+    public function testGetData()
+    {
+        /** @var \DevGroup\Multilingual\Multilingual $multilingual */
+        Yii::$app->trigger(Application::EVENT_BEFORE_REQUEST);
+        $_SERVER['SERVER_NAME'] = 'example.com';
+        $_SERVER['REQUEST_URI'] = '/site/about?post=1';
+        $_GET = ['post' => 1];
+        try {
+            $this->resolve();
+        } catch (ExitException $e) {
+            $this->assertArraySubset(
+                ['location' => ['http://example.ru/site/about?post=1']],
+                Yii::$app->response->getHeaders()->toArray()
+            );
+            $this->assertEquals(302, Yii::$app->response->statusCode);
+        }
+
+    }
 
     /**
      * Resets Yii2 Request component so it can handle another fake request and resolves it
