@@ -7,6 +7,7 @@ use yii\helpers\Html;
 /** @var \yii\web\View $this */
 /** @var string $blockClass */
 /** @var string $blockId */
+/**  @codeCoverageIgnore */
 ?>
 <div class="<?= $blockClass ?>" id="<?=$blockId?>">
     <a class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" href="#">

@@ -12,6 +12,7 @@ use yii\helpers\Html;
 /** @var CityInterface[] $allCites */
 /** @var CountryLanguageInterface $country */
 /** @var \DevGroup\Multilingual\Multilingual $multilingual */
+/**  @codeCoverageIgnore */
 ?>
 
 <div id="select_geo_block" class="sidebar-module sidebar-module-inset">

@@ -6,6 +6,7 @@ use yii\widgets\ActiveForm;
 /**
  * @var DevGroup\Multilingual\models\Context $model
  * @var yii\web\View $this
+ * @codeCoverageIgnore
  */
 
 $this->title = Yii::t('app', $model->isNewRecord ? 'Create' : 'Update');

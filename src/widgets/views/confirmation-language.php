@@ -9,6 +9,7 @@ use yii\helpers\Html;
 /** @var Language[] $languages */
 /** @var integer $currentLanguageId */
 /** @var \DevGroup\Multilingual\Multilingual $multilingual */
+/** @codeCoverageIgnore */
 
 
 $modal = Modal::begin([

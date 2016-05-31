@@ -7,6 +7,7 @@ use yii\grid\GridView;
  * @var yii\data\ActiveDataProvider $dataProvider
  * @var DevGroup\Multilingual\models\Context $model
  * @var yii\web\View $this
+ * @codeCoverageIgnore
  */
 
 $this->title = Yii::t('app', 'Contexts');
