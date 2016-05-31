@@ -2,8 +2,10 @@
 
 namespace DevGroup\Multilingual\LanguageEvents;
 
+use DevGroup\Multilingual\models\Context;
 use DevGroup\Multilingual\models\Language;
 use yii\helpers\ArrayHelper;
+use yii\web\NotFoundHttpException;
 
 class GettingLanguageByUrl implements GettingLanguage, AfterGettingLanguage
 {
@@ -14,15 +16,21 @@ class GettingLanguageByUrl implements GettingLanguage, AfterGettingLanguage
             $folder = array_shift($path);
             $languages = $event->languages;
             $domain = $event->domain;
+            $contextExists = false;
             $contexts = call_user_func([$event->multilingual->modelsMap['Context'], 'find'])->all();
             foreach ($contexts as $context) {
+                /** @var Context $context */
                 if ($context->domain === $domain) {
                     $event->multilingual->context_id = $context->id;
+                    $contextExists = true;
                 }
             }
             /** @var bool|Language $languageMatched */
+            $domainExists = false;
             foreach ($languages as $language) {
-                $matchedDomain = $language->domain === $domain;
+                if (true === ($matchedDomain = $language->domain === $domain)) {
+                    $domainExists = true;
+                }
                 if (empty($language->folder)) {
                     $matchedFolder = $matchedDomain;
                 } else {
@@ -37,6 +45,9 @@ class GettingLanguageByUrl implements GettingLanguage, AfterGettingLanguage
                     $event->resultClass = self::class;
                     return;
                 }
+            }
+            if (false === $domainExists && false === $contextExists) {
+                throw new NotFoundHttpException();
             }
             $event->needRedirect = true;
         }

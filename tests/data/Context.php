@@ -13,4 +13,10 @@ return [
         'domain' => 'example.org',
         'tree_root_id' => '2',
     ],
+    3 => [
+        'id' => '3',
+        'name' => 'Global context',
+        'domain' => 'example.net',
+        'tree_root_id' => '3',
+    ],
 ];
