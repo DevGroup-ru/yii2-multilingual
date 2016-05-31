@@ -4,7 +4,7 @@ namespace DevGroup\Multilingual\LanguageEvents;
 
 class GettingLanguageByUserInformation implements GettingLanguage
 {
-    public static function gettingLanguage(languageEvent $event)
+    public static function gettingLanguage(LanguageEvent $event)
     {
         if ($event->currentLanguageId == false) {
             foreach (\Yii::$app->request->getAcceptableLanguages() as  $acceptableLanguage) {

@@ -5,7 +5,6 @@ namespace DevGroup\Multilingual;
 use DevGroup\Multilingual\models\CityInterface;
 use DevGroup\Multilingual\models\Context;
 use DevGroup\Multilingual\models\CountryLanguageInterface;
-use DevGroup\Multilingual\models\Language;
 use DevGroup\Multilingual\models\LanguageInterface;
 use Yii;
 use yii\base\Application;
@@ -18,7 +17,6 @@ use yii\web\Cookie;
 /**
  * Class Multilingual
  *
- * @property integer|null $contextId
  * @package DevGroup\Multilingual
  */
 class Multilingual extends Component implements BootstrapInterface
@@ -43,6 +41,9 @@ class Multilingual extends Component implements BootstrapInterface
     /** @var null|int User language ID determined by requested Language Events */
     public $language_id = null;
 
+    /** @var null|int Context id */
+    public $context_id = null;
+
     /** @var null|int User language ID determined by preferred Language Events */
     public $preferred_language_id = null;
 
@@ -51,13 +52,6 @@ class Multilingual extends Component implements BootstrapInterface
 
     /** @var bool The case when geo information is ok, but no match for country->app-language */
     public $geo_default_language_forced = false;
-
-    /**
-     * ID of default site language.
-     * WARNING! You can probably have big problems(in Console application for example) if you don't set this property!
-     * @var null|int
-     */
-    public $default_language_id = null;
 
     /** @var string Application cache component name */
     public $cache = 'cache';
@@ -154,14 +148,13 @@ class Multilingual extends Component implements BootstrapInterface
     public function init()
     {
         parent::init();
-        $this->language_id = $this->default_language_id;
     }
 
     public function getAllLanguages()
     {
-        if ($this->contextId !== null) {
+        if ($this->context_id !== null) {
             /** @var Context $context */
-            $context = call_user_func([$this->modelsMap['Context'], 'find'])->where(['id' => $this->contextId])->one();
+            $context = call_user_func([$this->modelsMap['Context'], 'find'])->where(['id' => $this->context_id])->one();
             if ($context !== null) {
                 return $context->languages;
             }
@@ -475,12 +468,5 @@ class Multilingual extends Component implements BootstrapInterface
             $this->cityNeedsConfirmation = true;
         }
         return $this->_preferred_city;
-    }
-
-    public function getContextId()
-    {
-        return isset($this->_languages[$this->language_id]) === true
-            ? $this->_languages[$this->language_id]->context_id
-            : null;
     }
 }

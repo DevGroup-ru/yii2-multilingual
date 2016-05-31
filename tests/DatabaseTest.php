@@ -74,7 +74,6 @@ class DatabaseTest extends \PHPUnit_Extensions_Database_TestCase
                 ],
                 'multilingual' => [
                     'class' => \DevGroup\Multilingual\Multilingual::className(),
-                    'default_language_id' => 1,
                     'handlers' => [
                         [
                             'class' => \DevGroup\Multilingual\DefaultGeoProvider::className(),
@@ -676,7 +675,7 @@ class DatabaseTest extends \PHPUnit_Extensions_Database_TestCase
         $_SERVER['REQUEST_URI'] = '/';
         $this->resolve();
         $this->assertEquals(2, $multilingual->language_id);
-        $this->assertEquals(1, $multilingual->contextId);
+        $this->assertEquals(1, $multilingual->context_id);
         $this->assertEquals(3, count($multilingual->getAllLanguages()));
     }
 
@@ -692,13 +691,13 @@ class DatabaseTest extends \PHPUnit_Extensions_Database_TestCase
         $_SERVER['REQUEST_URI'] = '/';
         $this->resolve();
         $this->assertEquals(4, $multilingual->language_id);
-        $this->assertEquals(2, $multilingual->contextId);
+        $this->assertEquals(2, $multilingual->context_id);
         // context = 2 lang = en
         $_SERVER['SERVER_NAME'] = 'example.org';
         $_SERVER['REQUEST_URI'] = '/';
         $this->resolve();
         $this->assertEquals(5, $multilingual->language_id);
-        $this->assertEquals(2, $multilingual->contextId);
+        $this->assertEquals(2, $multilingual->context_id);
         //
         $languages = $multilingual->getAllLanguages();
         $defaultLanguage = reset($languages);

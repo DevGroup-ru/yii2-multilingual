@@ -170,6 +170,19 @@ class UrlManager extends BaseUrlManager
         $eventRequestedLanguage->languages = $languages;
         $this->trigger(self::GET_LANGUAGE, $eventRequestedLanguage);
 
+        if ($eventRequestedLanguage->currentLanguageId === null) {
+            $language = call_user_func([$multilingual->modelsMap['Language'], 'find'])
+                ->where(['context_id' => $multilingual->context_id])
+                ->orderBy(['sort_order' => SORT_ASC])
+                ->limit(1)
+                ->one();
+            if ($language === null) {
+                throw new \Exception('Unknown language');
+            }
+            $multilingual->language_id = $language->id;
+        } else {
+            $multilingual->language_id = $eventRequestedLanguage->currentLanguageId;
+        }
         $multilingual->language_id = $eventRequestedLanguage->currentLanguageId ?
             $eventRequestedLanguage->currentLanguageId :
             $multilingual->default_language_id;

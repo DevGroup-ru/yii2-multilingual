@@ -7,7 +7,7 @@ use yii\helpers\ArrayHelper;
 
 class GettingLanguageByUrl implements GettingLanguage, AfterGettingLanguage
 {
-    public static function gettingLanguage(languageEvent $event)
+    public static function gettingLanguage(LanguageEvent $event)
     {
         if ($event->currentLanguageId === false) {
             $path = explode('/', \Yii::$app->request->pathInfo);
@@ -17,11 +17,7 @@ class GettingLanguageByUrl implements GettingLanguage, AfterGettingLanguage
             $contexts = call_user_func([$event->multilingual->modelsMap['Context'], 'find'])->all();
             foreach ($contexts as $context) {
                 if ($context->domain === $domain) {
-                    $languages = $context->languages;
-                    $language = reset($languages);
-                    if ($language !== null) {
-                        $event->multilingual->default_language_id = $language->id;
-                    }
+                    $event->multilingual->context_id = $context->id;
                 }
             }
             /** @var bool|Language $languageMatched */
@@ -34,6 +30,7 @@ class GettingLanguageByUrl implements GettingLanguage, AfterGettingLanguage
                 }
                 if ($matchedDomain && $matchedFolder) {
                     $event->currentLanguageId = $language->id;
+                    $event->multilingual->context_id = $language->context_id;
                     if (!empty($language->folder) && $language->folder === $event->request->pathInfo) {
                         $event->needRedirect = true;
                     }
@@ -45,7 +42,7 @@ class GettingLanguageByUrl implements GettingLanguage, AfterGettingLanguage
         }
     }
 
-    public static function afterGettingLanguage(languageEvent $event)
+    public static function afterGettingLanguage(LanguageEvent $event)
     {
         $languageMatched = $event->languages[$event->multilingual->language_id];
         if ($event->needRedirect === true && $languageMatched->folder) {
