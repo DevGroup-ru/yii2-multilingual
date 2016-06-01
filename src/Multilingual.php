@@ -3,6 +3,7 @@
 namespace DevGroup\Multilingual;
 
 use DevGroup\Multilingual\models\CityInterface;
+use DevGroup\Multilingual\models\Context;
 use DevGroup\Multilingual\models\CountryLanguageInterface;
 use DevGroup\Multilingual\models\LanguageInterface;
 use Yii;
@@ -13,11 +14,15 @@ use yii\helpers\ArrayHelper;
 use yii\helpers\Url;
 use yii\web\Cookie;
 
+/**
+ * Class Multilingual
+ *
+ * @package DevGroup\Multilingual
+ */
 class Multilingual extends Component implements BootstrapInterface
 {
     /** @var bool Use X-Forwarded-For for ip detection */
     public $useXForwardedFor = false;
-
 
     /** @var bool Use CLIENT_IP header for ip detection */
     public $useClientIp = false;
@@ -30,11 +35,14 @@ class Multilingual extends Component implements BootstrapInterface
     /** @var GeoInfo */
     protected $geo = null;
 
-    /** @var null|integer User language ID determined by ip-geo information */
-    public $language_id_geo = null;
+    /** @var null|integer User language iso-code determined by ip-geo information */
+    public $iso_639_2t_geo = null;
 
     /** @var null|int User language ID determined by requested Language Events */
     public $language_id = null;
+
+    /** @var null|int Context id */
+    public $context_id = null;
 
     /** @var null|int User language ID determined by preferred Language Events */
     public $preferred_language_id = null;
@@ -44,13 +52,6 @@ class Multilingual extends Component implements BootstrapInterface
 
     /** @var bool The case when geo information is ok, but no match for country->app-language */
     public $geo_default_language_forced = false;
-
-    /**
-     * ID of default site language.
-     * WARNING! You can probably have big problems(in Console application for example) if you don't set this property!
-     * @var null|int
-     */
-    public $default_language_id = null;
 
     /** @var string Application cache component name */
     public $cache = 'cache';
@@ -127,7 +128,8 @@ class Multilingual extends Component implements BootstrapInterface
     public $modelsMap = [
         'Language' => 'DevGroup\Multilingual\models\Language',
         'CountryLanguage' => 'DevGroup\Multilingual\models\CountryLanguage',
-        'City' => 'DevGroup\Multilingual\models\City'
+        'City' => 'DevGroup\Multilingual\models\City',
+        'Context' => 'DevGroup\Multilingual\models\Context',
     ];
 
 
@@ -146,11 +148,17 @@ class Multilingual extends Component implements BootstrapInterface
     public function init()
     {
         parent::init();
-        $this->language_id = $this->default_language_id;
     }
 
     public function getAllLanguages()
     {
+        if ($this->context_id !== null) {
+            /** @var Context $context */
+            $context = call_user_func([$this->modelsMap['Context'], 'find'])->where(['id' => $this->context_id])->one();
+            if ($context !== null) {
+                return $context->languages;
+            }
+        }
         if ($this->_languages === []) {
             if (is_subclass_of($this->modelsMap['Language'], LanguageInterface::class)) {
                 $this->_languages = array_reduce(
@@ -286,9 +294,8 @@ class Multilingual extends Component implements BootstrapInterface
      */
     public function retrieveLanguageFromGeo()
     {
-        if (!$this->language_id_geo = $this->getLanguageFromGeo()) {
+        if (!$this->iso_639_2t_geo = $this->getLanguageFromGeo()) {
             $this->geo_default_language_forced = true;
-            $this->language_id_geo = $this->default_language_id;
         }
 
     }
@@ -296,7 +303,7 @@ class Multilingual extends Component implements BootstrapInterface
     public function getLanguageFromGeo()
     {
         // ok we have at least geo object, try to find language for it
-        if ($this->language_id_geo === null) {
+        if ($this->iso_639_2t_geo === null) {
             if ($this->geo instanceof GeoInfo) {
                 $country = $this->geo->country;
                 $searchOrder = [
@@ -316,14 +323,14 @@ class Multilingual extends Component implements BootstrapInterface
                         )->where([$attribute => $country->$attribute])
                             ->one();
                         if ($model !== null) {
-                            $this->language_id_geo = $model->language_id;
+                            $this->iso_639_2t_geo = $model->iso_3166_1_alpha_3;
                             break;
                         }
                     }
                 }
             }
         }
-        return $this->language_id_geo;
+        return $this->iso_639_2t_geo;
     }
 
 

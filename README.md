@@ -53,7 +53,6 @@ In your `web.php` config add the following components:
         // this is the main language and geo detection component
         'multilingual' => [
             'class' => \DevGroup\Multilingual\Multilingual::className(),
-            'default_language_id' => 1,
             // the list of handlers that will try to detect information(see also sypex-geo-daemon provider)
             'handlers' => [
                 [

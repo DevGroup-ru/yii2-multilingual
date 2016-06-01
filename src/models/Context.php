@@ -8,15 +8,16 @@ use yii\data\ActiveDataProvider;
 use yii2tech\filedb\ActiveRecord;
 
 /**
- * Class CountryLanguage
+ * Class Context
  *
  * @property integer $id
  * @property string $name
- * @property string $name_native
- * @property string $iso_3166_1_alpha_2
- * @property string $iso_3166_1_alpha_3
+ * @property string $domain
+ * @property integer $tree_root_id
+ * @property Language[] $languages
+ * @property string $db_table_postfix
  */
-class CountryLanguage extends ActiveRecord implements CountryLanguageInterface
+class Context extends ActiveRecord
 {
     use FileActiveRecord;
 
@@ -24,16 +25,20 @@ class CountryLanguage extends ActiveRecord implements CountryLanguageInterface
     {
         return [
             [['id'], 'integer', 'on' => ['search']],
-            [['name', 'iso_3166_1_alpha_2', 'iso_3166_1_alpha_3'], 'required', 'except' => ['search']],
-            [['name', 'name_native'], 'string'],
-            [['iso_3166_1_alpha_2'], 'string', 'max' => 2],
-            [['iso_3166_1_alpha_3'], 'string', 'max' => 3],
+            [['name', 'domain', 'tree_root_id'], 'required', 'except' => ['search']],
+            [['name', 'domain'], 'string', 'max' => 50],
+            [['tree_root_id'], 'integer'],
         ];
     }
 
-    public function getLanguage()
+    /**
+     * @return \yii2tech\filedb\ActiveQuery
+     */
+    public function getLanguages()
     {
-        return $this->hasOne(Language::className(), ['id' => 'language_id']);
+        return $this->hasMany(Language::class, ['context_id' => 'id'])
+            ->orderBy(['sort_order' => SORT_ASC])
+            ->indexBy('id');
     }
 
     public function search($params = [])
@@ -50,9 +55,8 @@ class CountryLanguage extends ActiveRecord implements CountryLanguageInterface
         }
         $query->andFilterWhere(['id' => $this->id])
             ->andFilterWhere(['like', 'name', $this->name])
-            ->andFilterWhere(['like', 'name_native', $this->name_native])
-            ->andFilterWhere(['iso_3166_1_alpha_2' => $this->iso_3166_1_alpha_2])
-            ->andFilterWhere(['iso_3166_1_alpha_3' => $this->iso_3166_1_alpha_3]);
+            ->andFilterWhere(['like', 'domain', $this->domain])
+            ->andFilterWhere(['tree_root_id' => $this->tree_root_id]);
         return $dataProvider;
     }
 }

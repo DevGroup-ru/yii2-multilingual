@@ -1,4 +1,5 @@
 <?php
+
 namespace DevGroup\Multilingual\models;
 
 use DevGroup\Multilingual\helper\GeoHelper;

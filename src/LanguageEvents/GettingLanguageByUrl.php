@@ -2,21 +2,35 @@
 
 namespace DevGroup\Multilingual\LanguageEvents;
 
+use DevGroup\Multilingual\models\Context;
 use DevGroup\Multilingual\models\Language;
 use yii\helpers\ArrayHelper;
+use yii\web\NotFoundHttpException;
 
 class GettingLanguageByUrl implements GettingLanguage, AfterGettingLanguage
 {
-    public static function gettingLanguage(languageEvent $event)
+    public static function gettingLanguage(LanguageEvent $event)
     {
         if ($event->currentLanguageId === false) {
             $path = explode('/', \Yii::$app->request->pathInfo);
             $folder = array_shift($path);
             $languages = $event->languages;
             $domain = $event->domain;
+            $contextExists = false;
+            $contexts = call_user_func([$event->multilingual->modelsMap['Context'], 'find'])->all();
+            foreach ($contexts as $context) {
+                /** @var Context $context */
+                if ($context->domain === $domain) {
+                    $event->multilingual->context_id = $context->id;
+                    $contextExists = true;
+                }
+            }
             /** @var bool|Language $languageMatched */
+            $domainExists = false;
             foreach ($languages as $language) {
-                $matchedDomain = $language->domain === $domain;
+                if (true === ($matchedDomain = $language->domain === $domain)) {
+                    $domainExists = true;
+                }
                 if (empty($language->folder)) {
                     $matchedFolder = $matchedDomain;
                 } else {
@@ -24,6 +38,7 @@ class GettingLanguageByUrl implements GettingLanguage, AfterGettingLanguage
                 }
                 if ($matchedDomain && $matchedFolder) {
                     $event->currentLanguageId = $language->id;
+                    $event->multilingual->context_id = $language->context_id;
                     if (!empty($language->folder) && $language->folder === $event->request->pathInfo) {
                         $event->needRedirect = true;
                     }
@@ -31,11 +46,14 @@ class GettingLanguageByUrl implements GettingLanguage, AfterGettingLanguage
                     return;
                 }
             }
+            if (false === $domainExists && false === $contextExists) {
+                throw new NotFoundHttpException();
+            }
             $event->needRedirect = true;
         }
     }
 
-    public static function afterGettingLanguage(languageEvent $event)
+    public static function afterGettingLanguage(LanguageEvent $event)
     {
         $languageMatched = $event->languages[$event->multilingual->language_id];
         if ($event->needRedirect === true && $languageMatched->folder) {
@@ -56,7 +74,6 @@ class GettingLanguageByUrl implements GettingLanguage, AfterGettingLanguage
                 $event->redirectCode = 302;
             }
         }
-
         if (!empty($languageMatched->domain) && $languageMatched->domain !== $event->domain) {
             // no matched language and not in excluded routes - should redirect to user's regional domain with 302
             \Yii::$app->urlManager->forceHostInUrl = true;
