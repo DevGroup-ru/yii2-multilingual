@@ -130,6 +130,7 @@ class Multilingual extends Component implements BootstrapInterface
         'CountryLanguage' => 'DevGroup\Multilingual\models\CountryLanguage',
         'City' => 'DevGroup\Multilingual\models\City',
         'Context' => 'DevGroup\Multilingual\models\Context',
+        'Tree' => 'DevGroup\Multilingual\models\DummyTree',
     ];
 
 

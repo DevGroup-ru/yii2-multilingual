@@ -21,7 +21,7 @@ $this->params['breadcrumbs'][] = Yii::t('app', 'Update');
         <?= $form->field($model, 'domain') ?>
         <?=
         $form->field($model, 'tree_root_id')
-            ->dropDownList(['123' => 'The first root', '666' => 'Root umber two', '1337' => 'Another root'])
+            ->dropDownList(call_user_func([Yii::$app->multilingual->modelsMap['Tree'], 'getTreeRootsList']))
         ?>
         <div class="form-group">
             <?= Html::submitButton(
@@ -50,7 +50,6 @@ $this->params['breadcrumbs'][] = Yii::t('app', 'Update');
                      'domain',
                      'folder',
                      'yii_language',
-                    // 'context_id',
                      'sort_order',
                     [
                         'buttons' => [
