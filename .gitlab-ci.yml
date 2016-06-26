@@ -1,0 +1,25 @@
+# Composer stores all downloaded packages in the vendor/ directory.
+# Do not use the following if the vendor/ directory is commited to
+# your git repository.
+cache:
+  paths:
+  - vendor/
+
+before_script:
+# Install composer dependencies
+- curl -sS https://getcomposer.org/installer | php
+- php composer.phar install
+# Install dependencies
+- bash ci/docker_install.sh > /dev/null
+
+# We test PHP5.6
+test:5.6:
+  image: php:5.6
+  script:
+  - phpunit --configuration phpunit.xml.dist
+
+# We test PHP7.0 (good luck with that)
+test:7.0:
+  image: php:7.0
+  script:
+  - phpunit --configuration phpunit.xml.dist
