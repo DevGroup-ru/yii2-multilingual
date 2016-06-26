@@ -8,9 +8,9 @@ cache:
 before_script:
 # Install composer dependencies
 - curl -sS https://getcomposer.org/installer | php
-- php composer.phar install
 # Install dependencies
 - bash ci/docker_install.sh > /dev/null
+- php composer.phar install
 
 # We test PHP5.6
 test:5.6:
