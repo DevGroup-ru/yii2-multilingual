@@ -12,16 +12,15 @@ before_script:
 # Install dependencies
 - bash ci/docker_install.sh > /dev/null
 - php composer.phar install --prefer-dist
-- php composer.phar global install phpunit
 
 # We test PHP5.6
 test:5.6:
   image: php:5.6
   script:
-  - phpunit --configuration phpunit.xml.dist
+  - vendor/bin/phpunit --configuration phpunit.xml.dist
 
 # We test PHP7.0 (good luck with that)
 test:7.0:
   image: php:7.0
   script:
-  - phpunit --configuration phpunit.xml.dist
+  - vendor/bin/phpunit --configuration phpunit.xml.dist
