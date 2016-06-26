@@ -4,13 +4,15 @@
 cache:
   paths:
   - vendor/
+  - ~/.composer
 
 before_script:
 # Install composer dependencies
 - curl -sS https://getcomposer.org/installer | php
 # Install dependencies
 - bash ci/docker_install.sh > /dev/null
-- php composer.phar install
+- php composer.phar install --prefer-dist
+- php composer.phar global install phpunit
 
 # We test PHP5.6
 test:5.6:
