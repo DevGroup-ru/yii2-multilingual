@@ -5,6 +5,7 @@ namespace DevGroup\Multilingual\behaviors;
 use Yii;
 use yii\base\Behavior;
 use yii\base\Model;
+use yii\base\ModelEvent;
 use yii\db\ActiveRecord;
 
 
@@ -54,7 +55,7 @@ class MultilingualActiveRecord extends Behavior
     public function getTranslationModelClassName()
     {
         if ($this->translationModelClass === false) {
-            return $this->owner->className().'Translation';
+            return $this->owner->className() . 'Translation';
         } else {
             return $this->translationModelClass;
         }
@@ -135,6 +136,7 @@ class MultilingualActiveRecord extends Behavior
 
         return $translation;
     }
+
     /**
      * Returns a value indicating whether the translation model for the specified language exists.
      * @param string|null $language_id
@@ -203,6 +205,7 @@ class MultilingualActiveRecord extends Behavior
             $owner->addError($this->translationRelation);
         }
     }
+
     /**
      * @return void
      */
@@ -227,15 +230,19 @@ class MultilingualActiveRecord extends Behavior
     /**
      * @return boolean
      */
-    public function beforeDelete()
+    public function beforeDelete(ModelEvent $event)
     {
-        $translations = $this->owner->{$this->translationRelation};
-        /* @var ActiveRecord $translation */
-        foreach ($translations as $translation) {
-            $translation->delete();
+        $result = $event->isValid;
+        if ($result !== false) {
+            $translations = $this->owner->{$this->translationRelation};
+            /* @var ActiveRecord $translation */
+            foreach ($translations as $translation) {
+                $translation->delete();
+            }
         }
-        return true;
+        return $result;
     }
+
     /**
      * @inheritdoc
      */
@@ -243,6 +250,7 @@ class MultilingualActiveRecord extends Behavior
     {
         return in_array($name, $this->translationAttributes) ?: parent::canGetProperty($name, $checkVars);
     }
+
     /**
      * @inheritdoc
      */
@@ -250,6 +258,7 @@ class MultilingualActiveRecord extends Behavior
     {
         return in_array($name, $this->translationAttributes) ?: parent::canSetProperty($name, $checkVars);
     }
+
     /**
      * @inheritdoc
      */
@@ -257,6 +266,7 @@ class MultilingualActiveRecord extends Behavior
     {
         return $this->getTranslation()->getAttribute($name);
     }
+
     /**
      * @inheritdoc
      */
