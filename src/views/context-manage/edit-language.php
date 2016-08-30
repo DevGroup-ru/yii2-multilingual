@@ -4,6 +4,7 @@ use yii\helpers\Html;
 use yii\widgets\ActiveForm;
 
 /**
+ * @var boolean $hasAccess
  * @var DevGroup\Multilingual\models\Language $model
  * @var yii\web\View $this
  * @codeCoverageIgnore
@@ -26,12 +27,14 @@ $this->params['breadcrumbs'][] = Yii::t('app', 'Update');
         <?= $form->field($model, 'folder') ?>
         <?= $form->field($model, 'yii_language') ?>
         <?= $form->field($model, 'sort_order') ?>
-        <div class="form-group">
-            <?= Html::submitButton(
-                $model->isNewRecord ? Yii::t('app', 'Create') : Yii::t('app', 'Update'),
-                ['class' => $model->isNewRecord ? 'btn btn-success' : 'btn btn-primary'])
-            ?>
-        </div>
+        <?php if ($hasAccess) : ?>
+            <div class="form-group">
+                <?= Html::submitButton(
+                    $model->isNewRecord ? Yii::t('app', 'Create') : Yii::t('app', 'Update'),
+                    ['class' => $model->isNewRecord ? 'btn btn-success' : 'btn btn-primary'])
+                ?>
+            </div>
+        <?php endif; ?>
         <?php ActiveForm::end(); ?>
     </div>
 </div>

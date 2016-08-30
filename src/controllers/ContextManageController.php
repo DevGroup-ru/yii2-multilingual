@@ -3,17 +3,17 @@
 namespace DevGroup\Multilingual\controllers;
 
 use DevGroup\AdminUtils\controllers\BaseController;
+use DevGroup\Multilingual\models\Context;
 use DevGroup\Multilingual\models\Language;
 use Yii;
-use DevGroup\Multilingual\models\Context;
 use yii\data\ActiveDataProvider;
+use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
-use yii\filters\VerbFilter;
 
 /**
  * ContextController implements the CRUD actions for Context model.
  */
-class ContextController extends BaseController
+class ContextManageController extends BaseController
 {
     /**
      * @inheritdoc
@@ -21,12 +21,35 @@ class ContextController extends BaseController
     public function behaviors()
     {
         return [
-//            'verbs' => [
-//                'class' => VerbFilter::className(),
-//                'actions' => [
-//                    'delete' => ['POST'],
-//                ],
-//            ],
+            'accessControl' => [
+                'class' => '\yii\filters\AccessControl',
+                'rules' => [
+                    [
+                        'allow' => true,
+                        'actions' => ['index', 'edit'],
+                        'roles' => ['multilingual-view-context'],
+                    ],
+                    [
+                        'allow' => true,
+                        'actions' => ['delete'],
+                        'roles' => ['multilingual-delete-context'],
+                    ],
+                    [
+                        'allow' => true,
+                        'actions' => ['edit-language'],
+                        'roles' => ['multilingual-view-language'],
+                    ],
+                    [
+                        'allow' => true,
+                        'actions' => ['delete-language'],
+                        'roles' => ['multilingual-delete-language'],
+                    ],
+                    [
+                        'allow' => false,
+                        'roles' => ['*'],
+                    ]
+                ],
+            ],
         ];
     }
 
@@ -66,13 +89,20 @@ class ContextController extends BaseController
                 ]
             );
         }
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+        $isLoaded = $model->load(Yii::$app->request->post());
+        $hasAccess = ($model->isNewRecord && Yii::$app->user->can('multilingual-create-context'))
+            || (!$model->isNewRecord && Yii::$app->user->can('multilingual-edit-context'));
+        if ($isLoaded && !$hasAccess) {
+            throw new ForbiddenHttpException;
+        }
+        if ($isLoaded && $model->save()) {
             return $this->redirect(['edit', 'id' => $model->id]);
         } else {
             return $this->render(
                 'edit',
                 [
                     'dataProvider' => $dataProvider,
+                    'hasAccess' => $hasAccess,
                     'model' => $model,
                 ]
             );
@@ -95,12 +125,19 @@ class ContextController extends BaseController
         if ($contextId !== null) {
             $model->context_id = $contextId;
         }
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+        $hasAccess = ($model->isNewRecord && Yii::$app->user->can('multilingual-create-language'))
+            || (!$model->isNewRecord && Yii::$app->user->can('multilingual-edit-language'));
+        $isLoaded = $model->load(Yii::$app->request->post());
+        if ($isLoaded && !$hasAccess) {
+            throw new ForbiddenHttpException;
+        }
+        if ($isLoaded && $model->save()) {
             return $this->redirect(['edit-language', 'id' => $model->id]);
         } else {
             return $this->render(
                 'edit-language',
                 [
+                    'hasAccess' => $hasAccess,
                     'model' => $model,
                 ]
             );

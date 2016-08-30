@@ -15,9 +15,11 @@ $this->params['breadcrumbs'][] = $this->title;
 
 ?>
 <div class="context-index">
-    <p>
-        <?= Html::a(Yii::t('app', 'Create'), ['edit'], ['class' => 'btn btn-success']) ?>
-    </p>
+    <?php if (Yii::$app->user->can('multilingual-create-context')) : ?>
+        <p>
+            <?= Html::a(Yii::t('app', 'Create'), ['edit'], ['class' => 'btn btn-success']) ?>
+        </p>
+    <?php endif; ?>
     <?=
     GridView::widget(
         [

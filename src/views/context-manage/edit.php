@@ -4,6 +4,8 @@ use yii\helpers\Html;
 use yii\widgets\ActiveForm;
 
 /**
+ * @var \yii\data\ActiveDataProvider $dataProvider
+ * @var boolean $hasAccess
  * @var DevGroup\Multilingual\models\Context $model
  * @var yii\web\View $this
  * @codeCoverageIgnore
@@ -23,19 +25,23 @@ $this->params['breadcrumbs'][] = Yii::t('app', 'Update');
         $form->field($model, 'tree_root_id')
             ->dropDownList(call_user_func([Yii::$app->multilingual->modelsMap['Tree'], 'getTreeRootsList']))
         ?>
-        <div class="form-group">
-            <?= Html::submitButton(
-                $model->isNewRecord ? Yii::t('app', 'Create') : Yii::t('app', 'Update'),
-                ['class' => $model->isNewRecord ? 'btn btn-success' : 'btn btn-primary'])
-            ?>
-        </div>
+        <?php if ($hasAccess) : ?>
+            <div class="form-group">
+                <?= Html::submitButton(
+                    $model->isNewRecord ? Yii::t('app', 'Create') : Yii::t('app', 'Update'),
+                    ['class' => $model->isNewRecord ? 'btn btn-success' : 'btn btn-primary'])
+                ?>
+            </div>
+        <?php endif; ?>
         <?php ActiveForm::end(); ?>
     </div>
-    <?php if (!$model->isNewRecord): ?>
+    <?php if (!$model->isNewRecord && Yii::$app->user->can('multilingual-view-language')): ?>
         <h2><?= Yii::t('app', 'Languages') ?></h2>
-        <p>
-            <?= Html::a(Yii::t('app', 'Create'), ['edit-language', 'contextId' => $model->id], ['class' => 'btn btn-success']) ?>
-        </p>
+        <?php if (Yii::$app->user->can('multilingual-create-language')): ?>
+            <p>
+                <?= Html::a(Yii::t('app', 'Create'), ['edit-language', 'contextId' => $model->id], ['class' => 'btn btn-success']) ?>
+            </p>
+        <?php endif; ?>
         <?=
         \yii\grid\GridView::widget(
             [

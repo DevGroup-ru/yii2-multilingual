@@ -3,15 +3,15 @@
 namespace DevGroup\Multilingual\controllers;
 
 use DevGroup\AdminUtils\controllers\BaseController;
-use Yii;
 use DevGroup\Multilingual\models\CountryLanguage;
+use Yii;
+use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
-use yii\filters\VerbFilter;
 
 /**
  * CountryLanguageController implements the CRUD actions for CountryLanguage model.
  */
-class CountryLanguageController extends BaseController
+class CountryLanguageManageController extends BaseController
 {
     /**
      * @inheritdoc
@@ -19,12 +19,25 @@ class CountryLanguageController extends BaseController
     public function behaviors()
     {
         return [
-//            'verbs' => [
-//                'class' => VerbFilter::className(),
-//                'actions' => [
-//                    'delete' => ['POST'],
-//                ],
-//            ],
+            'accessControl' => [
+                'class' => '\yii\filters\AccessControl',
+                'rules' => [
+                    [
+                        'allow' => true,
+                        'actions' => ['index', 'edit'],
+                        'roles' => ['multilingual-view-country-language'],
+                    ],
+                    [
+                        'allow' => true,
+                        'actions' => ['delete'],
+                        'roles' => ['multilingual-delete-country-language'],
+                    ],
+                    [
+                        'allow' => false,
+                        'roles' => ['*'],
+                    ]
+                ],
+            ],
         ];
     }
 
@@ -58,12 +71,19 @@ class CountryLanguageController extends BaseController
         } else {
             $model = $this->findModel($id);
         }
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+        $isLoaded = $model->load(Yii::$app->request->post());
+        $hasAccess = ($model->isNewRecord && Yii::$app->user->can('multilingual-create-country-language'))
+            || (!$model->isNewRecord && Yii::$app->user->can('multilingual-edit-country-language'));
+        if ($isLoaded && !$hasAccess) {
+            throw new ForbiddenHttpException;
+        }
+        if ($isLoaded && $model->save()) {
             return $this->redirect(['edit', 'id' => $model->id]);
         } else {
             return $this->render(
                 'edit',
                 [
+                    'hasAccess' => $hasAccess,
                     'model' => $model,
                 ]
             );
@@ -79,7 +99,6 @@ class CountryLanguageController extends BaseController
     public function actionDelete($id)
     {
         $this->findModel($id)->delete();
-
         return $this->redirect(['index']);
     }
 

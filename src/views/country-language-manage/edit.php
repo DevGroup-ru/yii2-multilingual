@@ -3,8 +3,10 @@
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
 
-/* @var $this yii\web\View
- * @var $model DevGroup\Multilingual\models\CountryLanguage
+/**
+ * @var boolean $hasAccess
+ * @var DevGroup\Multilingual\models\CountryLanguage $model
+ * @var yii\web\View $this
  * @codeCoverageIgnore
  */
 
@@ -20,14 +22,16 @@ $this->params['breadcrumbs'][] = Yii::t('app', 'Update');
         <?= $form->field($model, 'name_native') ?>
         <?= $form->field($model, 'iso_3166_1_alpha_2') ?>
         <?= $form->field($model, 'iso_3166_1_alpha_3') ?>
-        <div class="form-group">
-            <?=
-            Html::submitButton(
-                $model->isNewRecord ? Yii::t('app', 'Create') : Yii::t('app', 'Update'),
-                ['class' => $model->isNewRecord ? 'btn btn-success' : 'btn btn-primary']
-            )
-            ?>
-        </div>
+        <?php if ($hasAccess) : ?>
+            <div class="form-group">
+                <?=
+                Html::submitButton(
+                    $model->isNewRecord ? Yii::t('app', 'Create') : Yii::t('app', 'Update'),
+                    ['class' => $model->isNewRecord ? 'btn btn-success' : 'btn btn-primary']
+                )
+                ?>
+            </div>
+        <?php endif; ?>
         <?php ActiveForm::end(); ?>
     </div>
 </div>
