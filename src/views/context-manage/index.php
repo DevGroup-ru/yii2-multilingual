@@ -14,27 +14,33 @@ $this->title = Yii::t('app', 'Contexts');
 $this->params['breadcrumbs'][] = $this->title;
 
 ?>
-<div class="context-index">
-    <?php if (Yii::$app->user->can('multilingual-create-context')) : ?>
-        <p>
-            <?= Html::a(Yii::t('app', 'Create'), ['edit'], ['class' => 'btn btn-success']) ?>
-        </p>
-    <?php endif; ?>
-    <?=
-    GridView::widget(
-        [
-            'dataProvider' => $dataProvider,
-            'filterModel' => $model,
-            'columns' => [
-                'id',
-                'name',
-                'domain',
-                'tree_root_id',
+<div class="box">
+    <div class="box-body">
+        <div class="context-index">
+            <?=
+            GridView::widget(
                 [
-                    'class' => \DevGroup\AdminUtils\columns\ActionColumn::class,
-                ],
-            ],
-        ]
-    );
-    ?>
+                    'dataProvider' => $dataProvider,
+                    'filterModel' => $model,
+                    'columns' => [
+                        'id',
+                        'name',
+                        'domain',
+                        'tree_root_id',
+                        [
+                            'class' => \DevGroup\AdminUtils\columns\ActionColumn::class,
+                        ],
+                    ],
+                ]
+            );
+            ?>
+        </div>
+    </div>
+    <div class="box-footer">
+        <?php if (Yii::$app->user->can('multilingual-create-context')) : ?>
+            <div class="pull-right">
+                <?= Html::a(Yii::t('app', 'Create'), ['edit'], ['class' => 'btn btn-success']) ?>
+            </div>
+        <?php endif; ?>
+    </div>
 </div>
