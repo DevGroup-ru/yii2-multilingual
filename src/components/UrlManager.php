@@ -191,34 +191,37 @@ class UrlManager extends BaseUrlManager
         /** @var bool|Language $languageMatched */
         $languageMatched = $languages[$multilingual->language_id];
 
+
         Yii::$app->language = $languageMatched->yii_language;
 
 
         $path = explode('/', $request->pathInfo);
-        $folder = array_shift($path);
+
+        if (!empty($languageMatched->folder)) {
+            unset($path[0]);
+            $request->setPathInfo(implode('/', $path));
+        }
+
 
         if (is_array($this->excludeRoutes)) {
-            try {
-                $resolved = parent::parseRequest($request);
-            } catch (UrlNormalizerRedirectException $e) {
-                $resolved = false;
-            }
-            if (is_array($resolved)) {
-                $route = reset($resolved);
-                if (in_array($route, $this->excludeRoutes, true)) {
-                    $multilingual->language_id = $multilingual->cookie_language_id;
-                    /** @var Language $lang */
-                    $lang = call_user_func(
-                        [
-                            $multilingual->modelsMap['Language'],
-                            'getById'
-                        ],
-                        $multilingual->cookie_language_id
-                    );
-                    Yii::$app->language = $lang->yii_language;
-                    return $resolved;
+            if (in_array(implode('/', $path), $this->excludeRoutes, true)) {
+                $multilingual->language_id = $multilingual->cookie_language_id;
+                /** @var Language $lang */
+                $lang = call_user_func(
+                    [
+                        $multilingual->modelsMap['Language'],
+                        'getById'
+                    ],
+                    $multilingual->cookie_language_id
+                );
+                Yii::$app->language = $lang->yii_language;
+                if (!empty($languageMatched->folder)) {
+                    // URL Rules MUST not see language folder prefix
+                    $request->setPathInfo(implode('/', $path));
                 }
+                return parent::parseRequest($request);
             }
+
         }
 
         $eventPreferredLanguage = new LanguageEvent();
@@ -257,9 +260,7 @@ class UrlManager extends BaseUrlManager
             Yii::$app->end();
         }
 
-        if (!empty($languageMatched->folder)) {
-            $request->setPathInfo(implode('/', $path));
-        }
+
 
 
         return parent::parseRequest($request);
