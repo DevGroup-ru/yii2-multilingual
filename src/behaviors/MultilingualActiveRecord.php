@@ -7,6 +7,7 @@ use yii\base\Behavior;
 use yii\base\Model;
 use yii\base\ModelEvent;
 use yii\db\ActiveRecord;
+use yii\helpers\ArrayHelper;
 
 
 class MultilingualActiveRecord extends Behavior
@@ -38,15 +39,14 @@ class MultilingualActiveRecord extends Behavior
         $className = $this->getTranslationModelClassName();
         /** @var ActiveRecord $exampleModel */
         $exampleModel = new $className;
-        $this->translationAttributes = array_keys(
-            $exampleModel->getAttributes(
-                null,
-                [
-                    'language_id',
-                    'model_id'
-                ]
-            )
-        );
+
+        $this->translationAttributes = $exampleModel->attributes();
+        if ($owner->hasMethod('advancedTranslatableAttributes')) {
+            $this->translationAttributes = ArrayHelper::merge(
+                $this->translationAttributes,
+                $owner->advancedTranslatableAttributes()
+            );
+        }
     }
 
     /**
@@ -221,6 +221,7 @@ class MultilingualActiveRecord extends Behavior
         $owner->populateRelation($this->translationRelation, []);
 
         foreach ($translations as $translation) {
+
             $translation->loadDefaultValues();
             $owner->link($this->translationRelation, $translation);
         }
@@ -265,7 +266,7 @@ class MultilingualActiveRecord extends Behavior
      */
     public function __get($name)
     {
-        return $this->getTranslation()->getAttribute($name);
+        return $this->getTranslation()->{$name};
     }
 
     /**
@@ -274,6 +275,6 @@ class MultilingualActiveRecord extends Behavior
     public function __set($name, $value)
     {
         $translation = $this->getTranslation();
-        $translation->setAttribute($name, $value);
+        $translation->{$name} = $value;
     }
 }
