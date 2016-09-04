@@ -197,10 +197,7 @@ class UrlManager extends BaseUrlManager
 
         $path = explode('/', $request->pathInfo);
 
-        if (!empty($languageMatched->folder)) {
-            unset($path[0]);
-            $request->setPathInfo(implode('/', $path));
-        }
+
 
 
         if (is_array($this->excludeRoutes)) {
@@ -217,7 +214,9 @@ class UrlManager extends BaseUrlManager
                 Yii::$app->language = $lang->yii_language;
                 if (!empty($languageMatched->folder)) {
                     // URL Rules MUST not see language folder prefix
-                    $request->setPathInfo(implode('/', $path));
+                    $pathWithoutFolder = $path;
+                    unset($pathWithoutFolder[0]);
+                    $request->setPathInfo(implode('/', $pathWithoutFolder));
                 }
                 return parent::parseRequest($request);
             }
@@ -260,7 +259,10 @@ class UrlManager extends BaseUrlManager
             Yii::$app->end();
         }
 
-
+        if (!empty($languageMatched->folder)) {
+            unset($path[0]);
+            $request->setPathInfo(implode('/', $path));
+        }
 
 
         return parent::parseRequest($request);

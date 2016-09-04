@@ -58,6 +58,7 @@ class GettingLanguageByUrl implements GettingLanguage, AfterGettingLanguage
         $languageMatched = $event->languages[$event->multilingual->language_id];
         if ($event->needRedirect === true && $languageMatched->folder) {
             if ($languageMatched->folder === $event->request->pathInfo) {
+
                 $event->redirectUrl = '/' . $event->request->pathInfo . '/';
                 $event->redirectCode = 301;
             } else {

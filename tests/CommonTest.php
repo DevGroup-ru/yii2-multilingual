@@ -65,7 +65,7 @@ class CommonTest  extends MultilingualTestsInit
         // url requested geo = en
         $this->assertEquals(1, $multilingual->language_id);
 
-        // geo=ru, domain != ru, proper eng folder but without leading slash - should redirect
+        // geo=ru, domain != ru, proper eng folder but without trailing slash - should redirect
         $_SERVER['SERVER_NAME'] = 'example.com';
         $_SERVER['REQUEST_URI'] = '/en';
         $needsException = true;
