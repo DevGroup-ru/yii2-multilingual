@@ -221,6 +221,7 @@ class MultilingualActiveRecord extends Behavior
         $owner->populateRelation($this->translationRelation, []);
 
         foreach ($translations as $translation) {
+            $translation->loadDefaultValues();
             $owner->link($this->translationRelation, $translation);
         }
         // now all translations saved and are in _related !
