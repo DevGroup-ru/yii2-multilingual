@@ -14,7 +14,7 @@ trait MultilingualTrait
     /**
      * @return string
      */
-    protected static function getTranslationTableName()
+    public static function getTranslationTableName()
     {
         if (self::$translationTableName === null) {
             /** @var ActiveRecord|MultilingualActiveRecord $model */
