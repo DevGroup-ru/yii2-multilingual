@@ -9,6 +9,7 @@ use DevGroup\Multilingual\models\Language;
 use Yii;
 use yii\web\ServerErrorHttpException;
 use yii\web\UrlManager as BaseUrlManager;
+use yii\web\UrlNormalizerRedirectException;
 
 class UrlManager extends BaseUrlManager
 {
@@ -197,10 +198,14 @@ class UrlManager extends BaseUrlManager
         $folder = array_shift($path);
 
         if (is_array($this->excludeRoutes)) {
-            $resolved = parent::parseRequest($request);
+            try {
+                $resolved = parent::parseRequest($request);
+            } catch (UrlNormalizerRedirectException $e) {
+                $resolved = false;
+            }
             if (is_array($resolved)) {
                 $route = reset($resolved);
-                if (in_array($route, $this->excludeRoutes)) {
+                if (in_array($route, $this->excludeRoutes, true)) {
                     $multilingual->language_id = $multilingual->cookie_language_id;
                     /** @var Language $lang */
                     $lang = call_user_func(
@@ -255,6 +260,7 @@ class UrlManager extends BaseUrlManager
         if (!empty($languageMatched->folder)) {
             $request->setPathInfo(implode('/', $path));
         }
+
 
         return parent::parseRequest($request);
     }
