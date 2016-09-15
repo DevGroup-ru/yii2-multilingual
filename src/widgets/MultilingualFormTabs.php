@@ -2,9 +2,11 @@
 
 namespace DevGroup\Multilingual\widgets;
 
+use DevGroup\Multilingual\models\Context;
 use kartik\icons\FlagIconAsset;
 use DevGroup\Multilingual\models\Language;
 use Yii;
+use yii\base\InvalidParamException;
 use yii\base\Widget;
 use yii\bootstrap\Tabs;
 use yii\helpers\ArrayHelper;
@@ -37,6 +39,9 @@ class MultilingualFormTabs extends Widget
     /** @var string HTML for footer of this nav-tabs-custom */
     public $footer = '';
 
+    /** @var int the context id. It is used to get languages. By default we use current context */
+    public $contextId;
+
     /**
      * @inheritdoc
      */
@@ -46,8 +51,15 @@ class MultilingualFormTabs extends Widget
 
         /** @var \DevGroup\Multilingual\Multilingual $multilingual */
         $multilingual = Yii::$app->get('multilingual');
-
-        $languages = $multilingual->getAllLanguages();
+        if  ($this->contextId !== null) {
+            $context = Context::findOne($this->contextId);
+            if ($context === null) {
+                throw new InvalidParamException('Context not found');
+            }
+            $languages = $context->languages;
+        } else {
+            $languages = $multilingual->getAllLanguages();
+        }
         foreach ($languages as $index => $language) {
             $flag = $language->iso_639_1 === 'en' ? 'gb' : $language->iso_639_1;
             $items[] = [
