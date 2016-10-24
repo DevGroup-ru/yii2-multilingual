@@ -182,6 +182,7 @@ class UrlManager extends BaseUrlManager
         $eventRequestedLanguage->request = $request;
         $eventRequestedLanguage->languages = $languages;
         $this->trigger(self::GET_LANGUAGE, $eventRequestedLanguage);
+        /** @var Context $context */
         $context = Context::find()
             ->where(['id' => $multilingual->context_id])
             ->one();
@@ -205,7 +206,7 @@ class UrlManager extends BaseUrlManager
             throw new \Exception(var_export($multilingual->getAllLanguages(),true));
         }
         $languageMatched = $languages[$multilingual->language_id];
-
+        $rule = $languageMatched->rulesForContext($context->id);
 
         Yii::$app->language = $languageMatched->yii_language;
 
@@ -227,11 +228,14 @@ class UrlManager extends BaseUrlManager
                     $multilingual->cookie_language_id
                 );
                 Yii::$app->language = $lang->yii_language;
-                if (!empty($languageMatched->folder)) {
+
+
+                if (!empty($rule['folder'])) {
                     // URL Rules MUST not see language folder prefix
                     $pathWithoutFolder = $path;
                     unset($pathWithoutFolder[0]);
                     $request->setPathInfo(implode('/', $pathWithoutFolder));
+
                 }
                 return parent::parseRequest($request);
             }
@@ -274,7 +278,7 @@ class UrlManager extends BaseUrlManager
             Yii::$app->end();
         }
 
-        if (!empty($languageMatched->folder)) {
+        if (!empty($rule['folder'])) {
             unset($path[0]);
             $request->setPathInfo(implode('/', $path));
         }
