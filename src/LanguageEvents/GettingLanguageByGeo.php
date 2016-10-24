@@ -13,7 +13,6 @@ class GettingLanguageByGeo implements GettingLanguage
             $language = call_user_func([$event->multilingual->modelsMap['Language'], 'find'])
                 ->where(
                     [
-                        'context_id' => $event->multilingual->context_id,
                         'iso_639_2t' => $event->multilingual->iso_639_2t_geo,
                     ]
                 )

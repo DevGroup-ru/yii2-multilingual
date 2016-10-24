@@ -5,6 +5,7 @@ namespace DevGroup\Multilingual\components;
 use DevGroup\Multilingual\LanguageEvents\AfterGettingLanguage;
 use DevGroup\Multilingual\LanguageEvents\GettingLanguage;
 use DevGroup\Multilingual\LanguageEvents\LanguageEvent;
+use DevGroup\Multilingual\models\Context;
 use DevGroup\Multilingual\models\Language;
 use Yii;
 use yii\web\ServerErrorHttpException;
@@ -32,6 +33,7 @@ class UrlManager extends BaseUrlManager
     ];
 
     public $languageParam = 'language_id';
+    public $contextParam = 'context_id';
 
     public $forceHostInUrl = false;
 
@@ -98,6 +100,13 @@ class UrlManager extends BaseUrlManager
             unset($params[$this->languageParam]);
         }
 
+        $requested_context_id = isset($params[$this->contextParam]) ? $params[$this->contextParam] : null;
+        if ($requested_context_id === null) {
+            $requested_context_id = $multilingual->context_id;
+        } else {
+            unset($params[$this->contextParam]);
+        }
+
         /** @var Language $requested_language */
         $requested_language = call_user_func(
             [
@@ -109,11 +118,14 @@ class UrlManager extends BaseUrlManager
         if ($requested_language === null) {
             throw new ServerErrorHttpException('Requested language not found');
         }
+
+        $rules = $requested_language->rulesForContext($requested_context_id);
+
         $current_language_id = $multilingual->language_id;
 
         $url = parent::createUrl($params);
-        if (!empty($requested_language->folder)) {
-            $url = '/' . $requested_language->folder . '/' . ltrim($url, '/');
+        if (!empty($rules['folder'])) {
+            $url = '/' . $rules['folder'] . '/' . ltrim($url, '/');
         }
         if ($current_language_id === $requested_language->id && $this->forceHostInUrl === false) {
             return $url;
@@ -130,7 +142,7 @@ class UrlManager extends BaseUrlManager
         } else {
             $port = Yii::$app->request->port === 80 ? '' : ':' . Yii::$app->request->port;
         }
-        return $scheme . '://' . $requested_language->domain . $port . '/' . ltrim($url, '/');
+        return $scheme . '://' . $rules['domain'] . $port . '/' . ltrim($url, '/');
     }
 
     /**
@@ -170,25 +182,28 @@ class UrlManager extends BaseUrlManager
         $eventRequestedLanguage->request = $request;
         $eventRequestedLanguage->languages = $languages;
         $this->trigger(self::GET_LANGUAGE, $eventRequestedLanguage);
-
+        $context = Context::find()
+            ->where(['id' => $multilingual->context_id])
+            ->one();
         if ($eventRequestedLanguage->currentLanguageId === null) {
-            $language = call_user_func([$multilingual->modelsMap['Language'], 'find'])
-                ->where(['context_id' => $multilingual->context_id])
-                ->orderBy(['sort_order' => SORT_ASC])
-                ->limit(1)
-                ->one();
-            if ($language === null) {
+            // this is the situation when context_id is set, but no language id
+
+            if ($context) {
+                $multilingual->language_id = $context->default_language_id;
+            } else {
                 throw new \Exception('Unknown language');
             }
-            $multilingual->language_id = $language->id;
         } else {
             $multilingual->language_id = $eventRequestedLanguage->currentLanguageId;
         }
         $multilingual->language_id = $eventRequestedLanguage->currentLanguageId ?
             $eventRequestedLanguage->currentLanguageId :
-            $multilingual->default_language_id;
+            $context->default_language_id;
 
         /** @var bool|Language $languageMatched */
+        if (!isset($languages[$multilingual->language_id])) {
+            throw new \Exception(var_export($multilingual->getAllLanguages(),true));
+        }
         $languageMatched = $languages[$multilingual->language_id];
 
 

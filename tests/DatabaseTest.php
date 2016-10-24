@@ -90,7 +90,7 @@ class DatabaseTest extends \PHPUnit_Extensions_Database_TestCase
         try {
             Yii::$app->set('db', [
                 'class' => Connection::className(),
-                'dsn' => 'mysql:host=localhost;dbname=multilingual.dev',
+                'dsn' => 'mysql:host=localhost;dbname=yii2_multilingual',
                 'username' => 'root',
                 'password' => '',
             ]);

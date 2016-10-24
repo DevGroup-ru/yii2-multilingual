@@ -38,7 +38,7 @@ class ContextTest extends MultilingualTestsInit
         try {
             $this->resolve();
         } catch (ExitException $e) {
-            $this->assertEquals(4, $multilingual->language_id);
+            $this->assertEquals(2, $multilingual->language_id);
             $this->assertEquals(2, $multilingual->context_id);
         }
 
@@ -46,12 +46,12 @@ class ContextTest extends MultilingualTestsInit
         $_SERVER['SERVER_NAME'] = 'en.example.org';
         $_SERVER['REQUEST_URI'] = '/';
         $this->resolve();
-        $this->assertEquals(5, $multilingual->language_id);
+        $this->assertEquals(1, $multilingual->language_id);
         $this->assertEquals(2, $multilingual->context_id);
         $languages = $multilingual->getAllLanguages();
         $defaultLanguage = reset($languages);
-        $this->assertEquals(2, count($languages));
-        $this->assertEquals(5, $defaultLanguage->id);
+        $this->assertEquals(3, count($languages));
+        $this->assertEquals(1, $defaultLanguage->id);
     }
 
     /**
@@ -88,7 +88,7 @@ class ContextTest extends MultilingualTestsInit
             $this->resolve();
         } catch (ExitException $e) {
             $this->assertEquals(302, Yii::$app->response->statusCode);
-            $this->assertEquals(5, $multilingual->language_id);
+            $this->assertEquals(1, $multilingual->language_id);
             $this->assertEquals(2, $multilingual->context_id);
             $this->assertArraySubset(
                 ['location' => ['http://en.example.org/']],
@@ -115,7 +115,7 @@ class ContextTest extends MultilingualTestsInit
         $_SERVER['HTTP_ACCEPT_LANGUAGE'] = 'en-US,en;q=0.8';
         $this->resolve();
         $this->assertEquals(true, $multilingual->needsConfirmation);
-        $this->assertEquals(6, $multilingual->language_id);
+        $this->assertEquals(2, $multilingual->language_id);
         $this->assertEquals(3, $multilingual->context_id);
     }
 }

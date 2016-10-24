@@ -226,7 +226,7 @@ class MultilingualActiveRecord extends Behavior
             $owner->link($this->translationRelation, $translation);
         }
         // now all translations saved and are in _related !
-
+        return true;
     }
 
     /**

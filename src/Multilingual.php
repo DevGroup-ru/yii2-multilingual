@@ -153,13 +153,6 @@ class Multilingual extends Component implements BootstrapInterface
 
     public function getAllLanguages()
     {
-        if ($this->context_id !== null) {
-            /** @var Context $context */
-            $context = call_user_func([$this->modelsMap['Context'], 'find'])->where(['id' => $this->context_id])->one();
-            if ($context !== null) {
-                return $context->languages;
-            }
-        }
         if ($this->_languages === []) {
             if (is_subclass_of($this->modelsMap['Language'], LanguageInterface::class)) {
                 $this->_languages = array_reduce(

@@ -2,6 +2,7 @@
 
 namespace DevGroup\Multilingual\tests;
 
+use DevGroup\Multilingual\models\Language;
 use DevGroup\Multilingual\widgets\HrefLang;
 use Yii;
 use yii\base\ExitException;

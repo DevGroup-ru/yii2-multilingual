@@ -8,11 +8,23 @@ return [
         'iso_639_1' => 'en',
         'iso_639_2t' => 'eng',
         'hreflang' => 'en',
-        'domain' => 'example.com',
-        'folder' => 'en',
+        'context_rules' => [
+            1 => [
+                'domain' => 'example.com',
+                'folder' => 'en',
+            ],
+            2 => [
+                'domain' => 'en.example.org',
+                'folder' => '',
+            ],
+            3 => [
+                'domain' => 'en.example.net',
+                'folder' => '',
+            ]
+        ],
+
         'yii_language' => 'en-US',
         'db_table_postfix' => 'en',
-        'context_id' => '1',
         'sort_order' => '1',
     ],
     2 => [
@@ -22,11 +34,22 @@ return [
         'iso_639_1' => 'ru',
         'iso_639_2t' => 'rus',
         'hreflang' => 'ru',
-        'domain' => 'example.ru',
-        'folder' => '',
+        'context_rules' => [
+            1 => [
+                'domain' => 'example.ru',
+                'folder' => '',
+            ],
+            2 => [
+                'domain' => 'ru.example.org',
+                'folder' => '',
+            ],
+            3 => [
+                'domain' => 'example.net',
+                'folder' => '',
+            ],
+        ],
         'yii_language' => 'ru',
         'db_table_postfix' => 'ru',
-        'context_id' => '1',
         'sort_order' => '2',
     ],
     3 => [
@@ -36,67 +59,16 @@ return [
         'iso_639_1' => 'de',
         'iso_639_2t' => 'deu',
         'hreflang' => 'de',
-        'domain' => 'example.com',
-        'folder' => 'de',
+        'context_rules' => [
+            1 => [
+                'domain' => 'example.com',
+                'folder' => 'de',
+            ]
+        ],
         'yii_language' => 'de',
         'db_table_postfix' => 'de',
-        'context_id' => '1',
         'sort_order' => '3',
     ],
-    4 => [
-        'id' => 4,
-        'name' => 'Russian',
-        'name_native' => 'Русский',
-        'iso_639_1' => 'ru',
-        'iso_639_2t' => 'rus',
-        'hreflang' => 'ru',
-        'domain' => 'ru.example.org',
-        'folder' => '',
-        'yii_language' => 'ru',
-        'db_table_postfix' => 'ru',
-        'context_id' => '2',
-        'sort_order' => '2',
-    ],
-    5 => [
-        'id' => 5,
-        'name' => 'English',
-        'name_native' => 'English',
-        'iso_639_1' => 'en',
-        'iso_639_2t' => 'eng',
-        'hreflang' => 'en',
-        'domain' => 'en.example.org',
-        'folder' => '',
-        'yii_language' => 'en',
-        'db_table_postfix' => 'en',
-        'context_id' => '2',
-        'sort_order' => '1',
-    ],
-    6 => [
-        'id' => 6,
-        'name' => 'Russian',
-        'name_native' => 'Русский',
-        'iso_639_1' => 'ru',
-        'iso_639_2t' => 'rus',
-        'hreflang' => 'ru',
-        'domain' => 'example.net',
-        'folder' => '',
-        'yii_language' => 'ru',
-        'db_table_postfix' => 'ru',
-        'context_id' => '3',
-        'sort_order' => '1',
-    ],
-    7 => [
-        'id' => 7,
-        'name' => 'English',
-        'name_native' => 'English',
-        'iso_639_1' => 'en',
-        'iso_639_2t' => 'eng',
-        'hreflang' => 'en',
-        'domain' => 'en.example.net',
-        'folder' => '',
-        'yii_language' => 'en',
-        'db_table_postfix' => 'en',
-        'context_id' => '3',
-        'sort_order' => '2',
-    ],
+
+
 ];
