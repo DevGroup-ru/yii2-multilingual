@@ -140,7 +140,7 @@ class UrlManager extends BaseUrlManager
         if ($this->forcePort !== null) {
             $port = $this->forcePort === 80 ? '' : ':' . $this->forcePort;
         } else {
-            $port = Yii::$app->request->port === 80 ? '' : ':' . Yii::$app->request->port;
+            $port = '';
         }
         return $scheme . '://' . $rules['domain'] . $port . '/' . ltrim($url, '/');
     }
