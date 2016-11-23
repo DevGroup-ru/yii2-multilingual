@@ -36,7 +36,10 @@ class HrefLang extends Widget
         $result = '';
 
         foreach ($languages as $language) {
-            if ($language->id === $multilingual->language_id) {
+            if (
+                $language->id === $multilingual->language_id
+                || $language->rulesForContext(Yii::$app->multilingual->context_id) === null
+            ) {
                 // skip current language
                 continue;
             }
