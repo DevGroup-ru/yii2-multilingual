@@ -261,14 +261,14 @@ class UrlManager extends BaseUrlManager
                 $multilingual->needConfirmationEvents
             ) ||
             $eventRequestedLanguage->resultClass === null ||
-            Yii::$app->session->getFlash('needsConfirmation', false)
+            Yii::$app->session->get('needsConfirmation', false)
         ) {
             $multilingual->needsConfirmation = true;
         }
 
         if ($eventRequestedLanguage->redirectUrl !== false && $eventRequestedLanguage->redirectCode !== false) {
             if ($multilingual->needsConfirmation) {
-                Yii::$app->session->setFlash('needsConfirmation', true);
+                Yii::$app->session->set('needsConfirmation', true);
             }
             Yii::$app->response->redirect(
                 $eventRequestedLanguage->redirectUrl,
