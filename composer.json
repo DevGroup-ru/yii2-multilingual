@@ -17,9 +17,9 @@
         }
     ],
     "require": {
-        "yiisoft/yii2": "^2.0.6",
+        "yiisoft/yii2": "~2.0.6",
         "yii2tech/filedb": "^1.0@dev",
-        "devgroup/yii2-tag-dependency-helper": "~1.4.0",
+        "devgroup/yii2-tag-dependency-helper": "~1.5",
         "kartik-v/yii2-icons": "~1.4.0"
     },
     "require-dev": {
