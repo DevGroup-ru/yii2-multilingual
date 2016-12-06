@@ -2,6 +2,7 @@
 
 namespace DevGroup\Multilingual\models;
 
+use DevGroup\Multilingual\Multilingual;
 use DevGroup\Multilingual\traits\FileActiveRecord;
 use Yii;
 use yii\data\ActiveDataProvider;
@@ -18,7 +19,7 @@ use yii2tech\filedb\ActiveRecord;
  * @property Language[] $languages
  * @property string $db_table_postfix
  */
-class Context extends ActiveRecord
+class Context extends ActiveRecord implements ContextInterface
 {
     use FileActiveRecord;
 
@@ -71,8 +72,14 @@ class Context extends ActiveRecord
         return $dataProvider;
     }
 
+    /**
+     * @inheritdoc
+     */
     public static function getListData()
     {
-        return ArrayHelper::map(static::find()->all(), 'id', 'name');
+        return ArrayHelper::merge(
+            [null => 'Multi-context'],
+            ArrayHelper::map(static::find()->all(), 'id', 'name')
+        );
     }
 }
