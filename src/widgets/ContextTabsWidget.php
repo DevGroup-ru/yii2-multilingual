@@ -19,7 +19,7 @@ class ContextTabsWidget extends Widget
 
     public function run()
     {
-        $contexts = ArrayHelper::merge(Context::getListData(), ['common' => 'common']);
+        $contexts = Context::getListData();
         $result = [];
         foreach ($contexts as $id => $label) {
             $tmp = [];
