@@ -123,6 +123,9 @@ class ContextTest extends MultilingualTestsInit
     public function testGetListData()
     {
         $array = Context::getListData();
-        $this->assertEquals([1 => 'Web', 2 => 'Another context', 3 => 'Global context'], $array);
+        $this->assertEquals(
+            [null => 'Multi-context', 1 => 'Web', 2 => 'Another context', 3 => 'Global context'],
+            $array
+        );
     }
 }
