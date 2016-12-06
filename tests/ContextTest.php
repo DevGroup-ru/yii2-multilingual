@@ -2,6 +2,7 @@
 
 namespace DevGroup\Multilingual\tests;
 
+use DevGroup\Multilingual\models\Context;
 use DevGroup\Multilingual\Multilingual;
 use yii\base\ExitException;
 use yii\web\Application;
@@ -117,5 +118,11 @@ class ContextTest extends MultilingualTestsInit
         $this->assertEquals(true, $multilingual->needsConfirmation);
         $this->assertEquals(2, $multilingual->language_id);
         $this->assertEquals(3, $multilingual->context_id);
+    }
+
+    public function testGetListData()
+    {
+        $array = Context::getListData();
+        $this->assertEquals([1 => 'Web', 2 => 'Another context', 3 => 'Global context'], $array);
     }
 }
