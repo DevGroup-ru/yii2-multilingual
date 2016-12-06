@@ -5,6 +5,7 @@ namespace DevGroup\Multilingual\models;
 use DevGroup\Multilingual\traits\FileActiveRecord;
 use Yii;
 use yii\data\ActiveDataProvider;
+use yii\helpers\ArrayHelper;
 use yii2tech\filedb\ActiveRecord;
 
 /**
@@ -68,5 +69,10 @@ class Context extends ActiveRecord
             ->andFilterWhere(['like', 'domain', $this->domain])
             ->andFilterWhere(['tree_root_id' => $this->tree_root_id]);
         return $dataProvider;
+    }
+
+    public static function getListData()
+    {
+        return ArrayHelper::map(static::find()->all(), 'id', 'name');
     }
 }
