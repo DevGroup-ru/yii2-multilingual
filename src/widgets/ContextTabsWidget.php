@@ -24,11 +24,14 @@ class ContextTabsWidget extends Widget
         foreach ($contexts as $id => $label) {
             $tmp = [];
             foreach ($this->handlers as $handler) {
-                $tmp = ArrayHelper::merge($tmp, $handler->contextData($id));
+                $tmp = ArrayHelper::merge($tmp, $handler->contextData($id === '' ? null : $id));
             }
             $result[] = [
                 'label' => $label,
-                'content' => $this->render($this->tabViewFile, ['data' => $tmp, 'context_id' => $id]),
+                'content' => $this->render(
+                    $this->tabViewFile,
+                    ['data' => $tmp, 'context_id' => $id === '' ? null : $id]
+                ),
             ];
         }
 
