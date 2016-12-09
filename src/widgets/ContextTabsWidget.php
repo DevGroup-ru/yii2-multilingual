@@ -3,7 +3,6 @@
 namespace DevGroup\Multilingual\widgets;
 
 use DevGroup\Multilingual\interfaces\ContentTabHandlerInterface;
-use DevGroup\Multilingual\models\Context;
 use yii\base\Widget;
 use yii\helpers\ArrayHelper;
 
@@ -19,7 +18,7 @@ class ContextTabsWidget extends Widget
 
     public function run()
     {
-        $contexts = Context::getListData();
+        $contexts = call_user_func([Yii::$app->multilingual->modelsMap['Context'], 'getListData']);
         $result = [];
         foreach ($contexts as $id => $label) {
             $tmp = [];
