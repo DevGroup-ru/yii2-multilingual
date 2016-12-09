@@ -18,7 +18,7 @@ class ContextTabsWidget extends Widget
 
     public function run()
     {
-        $contexts = call_user_func([Yii::$app->multilingual->modelsMap['Context'], 'getListData']);
+        $contexts = call_user_func([\Yii::$app->multilingual->modelsMap['Context'], 'getListData']);
         $result = [];
         foreach ($contexts as $id => $label) {
             $tmp = [];
